@@ -11,23 +11,9 @@ namespace Syncs
     {
         static void Main(string[] args)
         {
-            /*
-            string path = "C:\\Users\\Brigi\\Desktop\\Erik - CS IA\\";
-            string target = "C:\\Users\\Brigi\\Desktop\\Try\\";
-            string c = "";
-            string path2= "C:\\Users\\Brigi\\Desktop\\sourcetry2\\";
-            string target2 = "C:\\Users\\Brigi\\Desktop\\targettry2\\";
-
-            List<FileWatcher> fileWatchers = new List<FileWatcher>();
-            fileWatchers.Add(new FileWatcher());
-            fileWatchers.Add(new FileWatcher());
-            fileWatchers[0].CreateWatcher(path, target, c);
-            fileWatchers[1].CreateWatcher(path2, target2, c);
-            fileWatchers.ForEach(x => x.TurnOnWatcher());
-            */
-            //try pther threading
-            string p1 = "C:\\Users\\Brigi\\Desktop\\folder1\\";
-            string p2 = "C:\\Users\\Brigi\\Desktop\\folder2\\";
+            //paths should be set
+            string p1 = "C:\\examplepath";
+            string p2 = "C:\\exampletarget";
             FileWatcher fw = new FileWatcher();
             fw.CreateWatcher(p1, p2, "Mirror");
             fw.TurnOnWatcher();
