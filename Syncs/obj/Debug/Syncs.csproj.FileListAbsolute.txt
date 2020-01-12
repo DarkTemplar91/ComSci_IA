@@ -1,0 +1,7 @@
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\bin\Debug\Syncs.exe.config
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\bin\Debug\Syncs.exe
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\bin\Debug\Syncs.pdb
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.csprojAssemblyReference.cache
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.csproj.CoreCompileInputs.cache
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.exe
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.pdb
