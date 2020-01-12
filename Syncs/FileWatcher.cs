@@ -12,6 +12,7 @@ namespace Syncs
 {
     class FileWatcher
     {
+        //Objects that will do the monitoring process
         DataHandling DataMember;
         DataHandling DataMember_backward;
         FileSystemWatcher watcher;
@@ -23,7 +24,9 @@ namespace Syncs
         string target;
         string WatcherConnection;
 
+        //the use of this list prevents the bug that FileSystemWatcher raises an event twice
         List<string> _changedFiles = new List<string>();
+        //Initializes the watcher(s)
         public void CreateWatcher(string u_path, string u_target, string connection)
         {
             path = u_path;
@@ -31,6 +34,7 @@ namespace Syncs
             WatcherConnection = connection;
             
             DataMember = new DataHandling(path, target);
+            
             if (connection == "Mirror")
             {
                 DataMember_backward = new DataHandling(target, path);
@@ -64,7 +68,7 @@ namespace Syncs
 
             switch (connection)
             {
-                //calls method more than once
+                
                 case "Constructive":
                     watcher.Changed += OnChanged;
                     watcher.Created += OnChanged;
@@ -100,6 +104,7 @@ namespace Syncs
             }
 
         }
+        //writes byte by byte, used instead of File.Copy and Directory.Copy
         void Write(string n_path, string n_target)
         {
             var buffer = new byte[1024 * 1024];
