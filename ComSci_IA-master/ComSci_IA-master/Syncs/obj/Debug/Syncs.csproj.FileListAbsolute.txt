@@ -1,0 +1,14 @@
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\bin\Debug\Syncs.exe.config
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\bin\Debug\Syncs.exe
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\bin\Debug\Syncs.pdb
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.csprojAssemblyReference.cache
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.csproj.CoreCompileInputs.cache
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.exe
+C:\Users\Brigi\Desktop\Erik - CS IA\Syncs\obj\Debug\Syncs.pdb
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\bin\Debug\Syncs.exe.config
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\bin\Debug\Syncs.exe
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\bin\Debug\Syncs.pdb
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\obj\Debug\Syncs.csprojAssemblyReference.cache
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\obj\Debug\Syncs.csproj.CoreCompileInputs.cache
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\obj\Debug\Syncs.exe
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\Syncs\obj\Debug\Syncs.pdb
