@@ -19,13 +19,17 @@ namespace Syncs
         FileSystemWatcher watcher_backward;
 
         bool watcherOn = false;
-        bool let = false;
         string path;
         string target;
         string WatcherConnection;
 
         //the use of this list prevents the bug that FileSystemWatcher raises an event twice
         List<string> _changedFiles = new List<string>();
+
+        static Queue<string> deletePath = new Queue<string>();
+        static bool deleteNow = false;
+        static List<string> exceptionPath = new List<string>();
+        
         //Initializes the watcher(s)
         public void CreateWatcher(string u_path, string u_target, string connection)
         {
@@ -47,9 +51,9 @@ namespace Syncs
                                               | NotifyFilters.Size;
                 watcher_backward.IncludeSubdirectories = true;
 
-                watcher_backward.Deleted += OnMirror2;
-                watcher_backward.Changed += OnMirror2;
-                watcher_backward.Created += OnMirror2;
+                watcher_backward.Deleted += OnMirrorDeleted;
+                watcher_backward.Changed += OnMirror;
+                watcher_backward.Created += OnMirror;
                 watcher_backward.Renamed += OnMirrorRenamed;
 
 
@@ -82,9 +86,9 @@ namespace Syncs
 
                     break;
                 case "Mirror":
-                    watcher.Deleted += OnMirror2;
-                    watcher.Changed += OnMirror2;
-                    watcher.Created += OnMirror2;
+                    watcher.Deleted += OnMirrorDeleted;
+                    watcher.Changed += OnMirror;
+                    watcher.Created += OnMirror;
                     watcher.Renamed += OnMirrorRenamed;
 
                     break;
@@ -276,50 +280,7 @@ namespace Syncs
                 Write(e.FullPath, e.FullPath.Replace(path, target));
             }
         }
-
-        private void OnMirror(object source, FileSystemEventArgs e)
-        {
-            
-            lock (_changedFiles)
-            {
-                if (_changedFiles.Contains(e.FullPath))
-                {
-                    return;
-                }
-                _changedFiles.Add(e.FullPath);
-            }
-            Console.WriteLine("Event raised by {0}: {1}",e.Name, e.ChangeType);
-            
-
-            if (source.Equals(watcher))
-            {
-                
-                watcher_backward.EnableRaisingEvents = false;
-                
-                Mirror.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
-                watcher_backward.EnableRaisingEvents = true;
-
-            }
-            else if (source.Equals(watcher_backward))
-            {
-
-                watcher.EnableRaisingEvents = false;
-                Mirror.MirrorBoth(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory);
-                watcher.EnableRaisingEvents = true;
-
-            }
-
-            System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
-            timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
-            {
-                lock (_changedFiles)
-                {
-                    _changedFiles.Remove(e.FullPath);
-                }
-            };
-            timer.Start();
-            Console.WriteLine("EventHandler finished");
-        }
+        
         private void OnMirrorRenamed(object source, RenamedEventArgs e)
         {
             Console.WriteLine("Event raised by {0}: {1}", e.Name, e.ChangeType);
@@ -376,7 +337,7 @@ namespace Syncs
             Console.WriteLine("EventHandler finished");
         }
 
-        private void OnMirror2(object source, FileSystemEventArgs e)
+        private void OnMirror(object source, FileSystemEventArgs e)
         {
 
             lock (_changedFiles)
@@ -395,11 +356,11 @@ namespace Syncs
                 {
                     OnChanged(source, e);
                 }
-                else if (e.ChangeType == WatcherChangeTypes.Deleted)
+                /*else if (e.ChangeType == WatcherChangeTypes.Deleted)
                 {
                     OnDeleted(source, e);
                 }
-
+                */
                 if (Mirror.DirEqual(DataMember.sourceDirectory, DataMember.targetDirectory) == false || Mirror.DirEqual(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory) == false)
                 {
                     Mirror.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
@@ -413,11 +374,12 @@ namespace Syncs
                 {
                     OnChanged(source, e);
                 }
+                /*
                 else if (e.ChangeType == WatcherChangeTypes.Deleted)
                 {
                     OnDeleted(source, e);
                 }
-
+                */
                 if (Mirror.DirEqual(DataMember.sourceDirectory, DataMember.targetDirectory) == false || Mirror.DirEqual(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory) == false)
                 {
                     Mirror.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
@@ -434,5 +396,80 @@ namespace Syncs
             };
             timer.Start();
         }
+
+        //Work with multiple files deleted! 
+        private void OnMirrorDeleted(object source, FileSystemEventArgs e)
+        {
+            lock (_changedFiles)
+            {
+                if (_changedFiles.Contains(e.FullPath))
+                {
+                    return;
+                }
+                _changedFiles.Add(e.FullPath);
+            }
+
+            Console.WriteLine("Event called by {0}: {1}", e.Name, e.ChangeType);
+
+            if (source.Equals(watcher) && exceptionPath.Contains(e.FullPath) == false)
+            {
+                deletePath.Enqueue(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
+                exceptionPath.Add(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
+            }
+            else if (source.Equals(watcher_backward) && exceptionPath.Contains(e.FullPath) == false)
+            {
+                deletePath.Enqueue(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
+                exceptionPath.Add(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
+            }
+            else
+            {
+                return;
+            }
+            if (deleteNow == true)
+            {
+                return;
+            }
+            System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
+            timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
+            {
+                deleteNow = true;
+            };
+            timer.Start();
+
+            while (deletePath.Count != 0)
+            {
+                string path2 = deletePath.Peek();
+                if (File.Exists(path2) || Directory.Exists(path2))
+                {
+                    try
+                    {
+
+                        File.Delete(path2);
+                        deletePath.Dequeue();
+                    }
+                    catch
+                    {
+                        Directory.Delete(path2);
+                        deletePath.Dequeue();
+                    }
+
+                }
+            }
+            
+
+            deleteNow = false;
+
+            System.Timers.Timer timer2 = new System.Timers.Timer(1000) { AutoReset = false };
+            timer2.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
+            {
+                lock (_changedFiles)
+                {
+                    _changedFiles.Remove(e.FullPath);
+                }
+            };
+            timer.Start();
+            exceptionPath.Clear();
+        }
+
     }
 }
