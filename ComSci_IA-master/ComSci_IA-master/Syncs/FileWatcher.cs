@@ -27,7 +27,6 @@ namespace Syncs
         List<string> _changedFiles = new List<string>();
 
         static Queue<string> deletePath = new Queue<string>();
-        static bool deleteNow = false;
         static List<string> exceptionPath = new List<string>();
         
         //Initializes the watcher(s)
@@ -90,9 +89,9 @@ namespace Syncs
                     watcher.Changed += OnMirror;
                     watcher.Created += OnMirror;
                     watcher.Renamed += OnMirrorRenamed;
-
                     break;
             }
+           
             
 
 
@@ -142,10 +141,8 @@ namespace Syncs
             }
 
             Console.WriteLine("Event called by {0}: {1}", e.Name,e.ChangeType);
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
 
-
+            if(e.FullPath.EndsWith(".tmp"))  return;
 
             FileInfo file = new FileInfo(e.FullPath);
             FileAttributes attr = File.GetAttributes(e.FullPath);
@@ -190,21 +187,19 @@ namespace Syncs
                     try
                     {
 
-                        Write(e.FullPath, DataMember.targetDirectory + file.Name);
+                        Write(e.FullPath, e.FullPath.Replace(DataMember.sourceDirectory,DataMember.targetDirectory));
                         break;
                     }
                     catch (Exception)
                     {
-                        Thread.Sleep(30000);
+                        Thread.Sleep(3000);
                     }
                 }
 
             }
 
            
-
-            sw.Stop();
-            Console.WriteLine("Time elapsed: {0}", sw.Elapsed);
+            
 
             System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
             timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
@@ -219,52 +214,51 @@ namespace Syncs
         }    
         private void OnDeleted(object source, FileSystemEventArgs e)
         {
+            lock (_changedFiles)
+            {
+                if (_changedFiles.Contains(e.FullPath))
+                {
+                    return;
+                }
+                _changedFiles.Add(e.FullPath);
+            }
             Console.WriteLine("Event raised by {0}: {1}", e.Name,e.ChangeType);
-            FileInfo file = new FileInfo(e.FullPath);
             if (source.Equals(watcher))
             {
-                try
-                {
-                    Directory.Delete(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory),true);
-
-                }
-                catch (DirectoryNotFoundException)
-                {
-                    //for duplicate ecent
-                }
-                catch (IOException)
-                {
-                    File.Delete(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
-                }
-                
-                
-
+                deletePath.Enqueue(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
 
             }
             else if (source.Equals(watcher_backward))
             {
-                try
-                {
-                    Directory.Delete(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory),true);
-
-                }
-                catch (IOException)
-                {
-                    File.Delete(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
-                }
-                catch
-                {
-                    //duplicate events
-                }
+                deletePath.Enqueue(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
             }
-            
-            
-            
-            
+
+            System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
+            timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
+            {
+                lock (_changedFiles)
+                {
+                    _changedFiles.Remove(e.FullPath);
+                }
+            };
+            timer.Start();
+
+
+
+
         }
         private void OnRenamed(object source, RenamedEventArgs e)
         {
-         
+
+            lock (_changedFiles)
+            {
+                if (_changedFiles.Contains(e.FullPath))
+                {
+                    return;
+                }
+                _changedFiles.Add(e.FullPath);
+            }
+
             string[] oldpath = e.OldFullPath.Split('\\');
             string oldname = oldpath[oldpath.Length - 1];
 
@@ -279,6 +273,16 @@ namespace Syncs
             {
                 Write(e.FullPath, e.FullPath.Replace(path, target));
             }
+
+            System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
+            timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
+            {
+                lock (_changedFiles)
+                {
+                    _changedFiles.Remove(e.FullPath);
+                }
+            };
+            timer.Start();
         }
         
         private void OnMirrorRenamed(object source, RenamedEventArgs e)
@@ -336,7 +340,6 @@ namespace Syncs
             timer.Start();
             Console.WriteLine("EventHandler finished");
         }
-
         private void OnMirror(object source, FileSystemEventArgs e)
         {
 
@@ -356,11 +359,7 @@ namespace Syncs
                 {
                     OnChanged(source, e);
                 }
-                /*else if (e.ChangeType == WatcherChangeTypes.Deleted)
-                {
-                    OnDeleted(source, e);
-                }
-                */
+                
                 if (Mirror.DirEqual(DataMember.sourceDirectory, DataMember.targetDirectory) == false || Mirror.DirEqual(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory) == false)
                 {
                     Mirror.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
@@ -374,12 +373,7 @@ namespace Syncs
                 {
                     OnChanged(source, e);
                 }
-                /*
-                else if (e.ChangeType == WatcherChangeTypes.Deleted)
-                {
-                    OnDeleted(source, e);
-                }
-                */
+                
                 if (Mirror.DirEqual(DataMember.sourceDirectory, DataMember.targetDirectory) == false || Mirror.DirEqual(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory) == false)
                 {
                     Mirror.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
@@ -396,8 +390,7 @@ namespace Syncs
             };
             timer.Start();
         }
-
-        //Work with multiple files deleted! 
+        //stores paths to be deleted
         private void OnMirrorDeleted(object source, FileSystemEventArgs e)
         {
             lock (_changedFiles)
@@ -425,42 +418,11 @@ namespace Syncs
             {
                 return;
             }
-            if (deleteNow == true)
-            {
-                return;
-            }
+           
+            
+            
             System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
             timer.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
-            {
-                deleteNow = true;
-            };
-            timer.Start();
-
-            while (deletePath.Count != 0)
-            {
-                string path2 = deletePath.Peek();
-                if (File.Exists(path2) || Directory.Exists(path2))
-                {
-                    try
-                    {
-
-                        File.Delete(path2);
-                        deletePath.Dequeue();
-                    }
-                    catch
-                    {
-                        Directory.Delete(path2);
-                        deletePath.Dequeue();
-                    }
-
-                }
-            }
-            
-
-            deleteNow = false;
-
-            System.Timers.Timer timer2 = new System.Timers.Timer(1000) { AutoReset = false };
-            timer2.Elapsed += (timerElapsedSender, timerElapsedArgs) =>
             {
                 lock (_changedFiles)
                 {
@@ -468,8 +430,51 @@ namespace Syncs
                 }
             };
             timer.Start();
-            exceptionPath.Clear();
         }
+        
+        
+        //call method to delete paths in main!
+        public static void DeletePaths()
+        {
+            do
+            {
+                //Prevent paths to be enqued from another thread while deleting
+                lock (deletePath)
+                {
+                    while (deletePath.Count != 0)
+                    {
+                        string path = deletePath.Peek();
+                        if (File.Exists(path) || Directory.Exists(path))
+                        {
+                            try
+                            {
+
+                                File.Delete(path);
+                                deletePath.Dequeue();
+                            }
+                            catch
+                            {
+                                Directory.Delete(path);
+                                deletePath.Dequeue();
+                            }
+
+                        }
+                        else if (File.Exists(path) == false)
+                        {
+                            deletePath.Dequeue();
+                        }
+                        else break;
+
+                    }
+                    exceptionPath.Clear();
+                }
+
+            } while (true);
+           
+        }
+
+
+        
 
     }
 }

@@ -14,6 +14,7 @@ namespace Syncs
             //paths should be set
             string p1 = "I:\\Desktop\\aaa";
             string p2 = "I:\\Desktop\\bbb";
+            Task.Run(()=>FileWatcher.DeletePaths());
             FileWatcher fw = new FileWatcher();
             fw.CreateWatcher(p1, p2, "Mirror");
             fw.TurnOnWatcher();
