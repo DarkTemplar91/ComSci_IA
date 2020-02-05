@@ -37,6 +37,7 @@
             this.swapButton = new System.Windows.Forms.Button();
             this.labelSource = new System.Windows.Forms.Label();
             this.labelTarget = new System.Windows.Forms.Label();
+            this.labelError = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).BeginInit();
             this.SuspendLayout();
             // 
@@ -56,6 +57,7 @@
             this.addButton.TabIndex = 1;
             this.addButton.Text = "Add";
             this.addButton.UseVisualStyleBackColor = true;
+            this.addButton.Click += new System.EventHandler(this.AddButton_Click);
             // 
             // textSource
             // 
@@ -125,11 +127,20 @@
             this.labelTarget.Size = new System.Drawing.Size(0, 13);
             this.labelTarget.TabIndex = 8;
             // 
+            // labelError
+            // 
+            this.labelError.AutoSize = true;
+            this.labelError.Location = new System.Drawing.Point(147, 135);
+            this.labelError.Name = "labelError";
+            this.labelError.Size = new System.Drawing.Size(0, 13);
+            this.labelError.TabIndex = 9;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.labelError);
             this.Controls.Add(this.labelTarget);
             this.Controls.Add(this.labelSource);
             this.Controls.Add(this.swapButton);
@@ -158,6 +169,7 @@
         private System.Windows.Forms.Button swapButton;
         private System.Windows.Forms.Label labelSource;
         private System.Windows.Forms.Label labelTarget;
+        private System.Windows.Forms.Label labelError;
     }
 }
 

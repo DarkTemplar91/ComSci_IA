@@ -4,17 +4,17 @@
   <description asmv2:publisher="SyncAppGUI" asmv2:product="SyncAppGUI" xmlns="urn:schemas-microsoft-com:asm.v1" />
   <deployment install="true" mapFileExtensions="true" />
   <compatibleFrameworks xmlns="urn:schemas-microsoft-com:clickonce.v2">
-    <framework targetVersion="4.6.1" profile="Full" supportedRuntime="4.0.30319" />
+    <framework targetVersion="4.7.2" profile="Full" supportedRuntime="4.0.30319" />
   </compatibleFrameworks>
   <dependency>
-    <dependentAssembly dependencyType="install" codebase="SyncAppGUI.exe.manifest" size="3470">
+    <dependentAssembly dependencyType="install" codebase="SyncAppGUI.exe.manifest" size="3468">
       <assemblyIdentity name="SyncAppGUI.exe" version="1.0.0.1" publicKeyToken="0000000000000000" language="neutral" processorArchitecture="msil" type="win32" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>yFS0MpQPTyqQOHffIv6Y7A7ZNd+FiohCS2WWb8Ey+CM=</dsig:DigestValue>
+        <dsig:DigestValue>dpAqe/zOn9P95BuzoQdho+Vu8N+h8HuB2Q+bLSf0qPA=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>
