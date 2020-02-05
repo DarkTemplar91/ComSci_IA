@@ -12,3 +12,17 @@ C:\Users\Brigi\Desktop\Erik - CS IA\SyncAppGUI\bin\Debug\SyncAppGUI.exe.manifest
 C:\Users\Brigi\Desktop\Erik - CS IA\SyncAppGUI\bin\Debug\SyncAppGUI.application
 C:\Users\Brigi\Desktop\Erik - CS IA\SyncAppGUI\obj\Debug\SyncAppGUI.exe.manifest
 C:\Users\Brigi\Desktop\Erik - CS IA\SyncAppGUI\obj\Debug\SyncAppGUI.application
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\bin\Debug\SyncAppGUI.exe.config
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\bin\Debug\SyncAppGUI.exe.manifest
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\bin\Debug\SyncAppGUI.application
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\bin\Debug\SyncAppGUI.exe
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\bin\Debug\SyncAppGUI.pdb
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.csprojAssemblyReference.cache
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.Form1.resources
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.Properties.Resources.resources
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.csproj.GenerateResource.cache
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.csproj.CoreCompileInputs.cache
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.exe.manifest
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.application
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.exe
+I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.pdb

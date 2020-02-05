@@ -35,6 +35,8 @@
             this.browseSource = new System.Windows.Forms.Button();
             this.browseTarget = new System.Windows.Forms.Button();
             this.swapButton = new System.Windows.Forms.Button();
+            this.labelSource = new System.Windows.Forms.Label();
+            this.labelTarget = new System.Windows.Forms.Label();
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).BeginInit();
             this.SuspendLayout();
             // 
@@ -64,6 +66,7 @@
             this.textSource.TabIndex = 2;
             this.textSource.DragDrop += new System.Windows.Forms.DragEventHandler(this.TextSource_DragDrop);
             this.textSource.DragEnter += new System.Windows.Forms.DragEventHandler(this.TextSource_DragEnter);
+            this.textSource.Validating += new System.ComponentModel.CancelEventHandler(this.textSource_Validating);
             // 
             // textTarget
             // 
@@ -72,6 +75,9 @@
             this.textTarget.Name = "textTarget";
             this.textTarget.Size = new System.Drawing.Size(100, 20);
             this.textTarget.TabIndex = 3;
+            this.textTarget.DragDrop += new System.Windows.Forms.DragEventHandler(this.textTarget_DragDrop);
+            this.textTarget.DragEnter += new System.Windows.Forms.DragEventHandler(this.textTarget_DragEnter);
+            this.textTarget.Validating += new System.ComponentModel.CancelEventHandler(this.textTarget_Validating);
             // 
             // browseSource
             // 
@@ -103,11 +109,29 @@
             this.swapButton.UseVisualStyleBackColor = true;
             this.swapButton.Click += new System.EventHandler(this.SwapButton_Click);
             // 
+            // labelSource
+            // 
+            this.labelSource.AutoSize = true;
+            this.labelSource.Location = new System.Drawing.Point(182, 136);
+            this.labelSource.Name = "labelSource";
+            this.labelSource.Size = new System.Drawing.Size(0, 13);
+            this.labelSource.TabIndex = 7;
+            // 
+            // labelTarget
+            // 
+            this.labelTarget.AutoSize = true;
+            this.labelTarget.Location = new System.Drawing.Point(445, 135);
+            this.labelTarget.Name = "labelTarget";
+            this.labelTarget.Size = new System.Drawing.Size(0, 13);
+            this.labelTarget.TabIndex = 8;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.labelTarget);
+            this.Controls.Add(this.labelSource);
             this.Controls.Add(this.swapButton);
             this.Controls.Add(this.browseTarget);
             this.Controls.Add(this.browseSource);
@@ -132,6 +156,8 @@
         private System.Windows.Forms.Button browseSource;
         private System.Windows.Forms.Button browseTarget;
         private System.Windows.Forms.Button swapButton;
+        private System.Windows.Forms.Label labelSource;
+        private System.Windows.Forms.Label labelTarget;
     }
 }
 

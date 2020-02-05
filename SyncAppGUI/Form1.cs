@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Text.RegularExpressions;
 
 namespace SyncAppGUI
 {
@@ -16,6 +17,8 @@ namespace SyncAppGUI
         {
             InitializeComponent();
             Grid();
+
+            
         }
 
         public void Grid()
@@ -88,6 +91,10 @@ namespace SyncAppGUI
             temp = textSource.Text;
             textSource.Text = textTarget.Text;
             textTarget.Text = temp;
+            textSource.Focus();
+            textTarget.Focus();
+            textTarget.Focus();
+            swapButton.Focus();
         }
         
         private void TextSource_DragEnter(object sender, DragEventArgs e)
@@ -104,6 +111,78 @@ namespace SyncAppGUI
                 e.Effect = DragDropEffects.Copy;
             else
                 e.Effect = DragDropEffects.None;
+        }
+
+        private void textTarget_DragEnter(object sender, DragEventArgs e)
+        {
+
+            string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
+            foreach (string file in files) textTarget.Text = file;
+        }
+
+        private void textTarget_DragDrop(object sender, DragEventArgs e)
+        {
+            if (e.Data.GetDataPresent(DataFormats.FileDrop, false))
+                e.Effect = DragDropEffects.Copy;
+            else
+                e.Effect = DragDropEffects.None;
+        }
+        private bool Evaluation(string source)
+        {
+            Regex r = new Regex(@"^(([a-zA-Z]\:)|(\\))(\\{1}|((\\{1})[^\\]([^/:*?<>""|]*))+)$");
+            if (string.IsNullOrWhiteSpace(source)) return false;
+            if (r.IsMatch(source)) return true;
+            else return false;
+        }
+
+        private void textSource_Validating(object sender, CancelEventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(textSource.Text))
+            {
+                textSource.BackColor = Color.White;
+                textSource.ForeColor = Color.Black;
+                labelSource.Text = "";
+            }
+            else if (Evaluation(textSource.Text) == false)
+            {
+
+                textSource.BackColor = Color.Red;
+                textSource.ForeColor = Color.WhiteSmoke;
+
+                labelSource.ForeColor = Color.Red;
+                labelSource.Text = "Path input is invalid!";
+            }
+            else
+            {
+                labelSource.Text = "";
+                textSource.BackColor = Color.White;
+                textSource.ForeColor = Color.Black;
+            }
+        }
+
+        private void textTarget_Validating(object sender, CancelEventArgs e)
+        {
+            
+            if (string.IsNullOrWhiteSpace(textTarget.Text))
+            {
+                labelTarget.Text = "";
+                textTarget.BackColor = Color.White;
+                textTarget.ForeColor = Color.Black;
+            }
+            else if (Evaluation(textTarget.Text) == false)
+            {
+
+                textTarget.BackColor = Color.Red;
+                textTarget.ForeColor = Color.WhiteSmoke;
+                labelTarget.ForeColor = Color.Red;
+                labelTarget.Text = "Path input is invalid!";
+            }
+            else
+            {
+                labelTarget.Text = "";
+                textTarget.BackColor = Color.White;
+                textTarget.ForeColor = Color.Black;
+            }
         }
     }
     
