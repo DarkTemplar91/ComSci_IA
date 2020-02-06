@@ -18,11 +18,11 @@ namespace SyncAppGUI
             InitializeComponent();
             pathGrid.AutoGenerateColumns = false;
             Grid();
-            //pathGrid.CellValueChanged += new DataGridViewCellEventHandler(pathGrid_CellValueChanged);
-            //pathGrid.CellContentClick += new DataGridViewCellEventHandler(pathGrid_CellValueChanged);
+            pathGrid.CellContentClick += new DataGridViewCellEventHandler(pathGrid_CellValueChanged);
+            pathGrid.CurrentCellDirtyStateChanged += new EventHandler(pathGrid_DirtyCell);
+            pathGrid.CellClick += new DataGridViewCellEventHandler(pathGrid_OnClick);
             pathGrid.DataSource = pathGridMembers;
             
-
         }
 
 
@@ -32,7 +32,16 @@ namespace SyncAppGUI
 
         public void Grid()
         {
+            
             pathGrid.AllowUserToAddRows = false;
+            pathGrid.AllowUserToOrderColumns = true;
+            pathGrid.AllowUserToOrderColumns = false;
+
+            //add sorting to BindingList later as this does not work
+            foreach (DataGridViewColumn col in pathGrid.Columns)
+            {
+                col.SortMode = DataGridViewColumnSortMode.Automatic;
+            }
 
             pathGrid.ColumnCount = 4;
             pathGrid.Columns[0].DataPropertyName = "SFolder";
@@ -48,28 +57,33 @@ namespace SyncAppGUI
             pathGrid.Columns[4].Name = "AutoSync";
             pathGrid.Columns[4].DataPropertyName = "AutoSync";
             DataGridViewComboBoxColumn comboBoxColumn = new DataGridViewComboBoxColumn();
-            comboBoxColumn.DataSource = Enum.GetNames(typeof(pathGridMember.syncType));
+            comboBoxColumn.DataSource = Enum.GetNames(typeof(pathGridMember.syncTypes));
             pathGrid.Columns.Add(comboBoxColumn);
             pathGrid.Columns[5].Name = "Sync Type";
             pathGrid.Columns[5].DataPropertyName = "SyncType";
             DataGridViewButtonColumn buttonColumn = new DataGridViewButtonColumn();
             buttonColumn.Name = "Delete";
             buttonColumn.HeaderText = "Delete";
+            buttonColumn.Text = "Delete";
+            buttonColumn.Resizable = DataGridViewTriState.False;
+
+            buttonColumn.FlatStyle = FlatStyle.Standard;
             pathGrid.Columns.Add(buttonColumn);
             
         }
         private void AddButton_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(textTarget.Text) && string.IsNullOrEmpty(textSource.Text))
+            if (string.IsNullOrEmpty(textTarget.Text) && string.IsNullOrEmpty(textSource.Text)) ;
+            else if(string.IsNullOrEmpty(textTarget.Text) || string.IsNullOrEmpty(textSource.Text))
             {
-
+                labelError.Text = "Select two folders!";
             }
-            else if ((pathGridMembers.Any(x => (x.Source == textSource.Text)&&(x.Target==textTarget.Text))==false)&&Evaluation(textSource.Text)==true&&Evaluation(textTarget.Text)==true)
+            else if ((pathGridMembers.Any(x => (x.Source == textSource.Text) && (x.Target == textTarget.Text)) == false) && Evaluation(textSource.Text) == true && Evaluation(textTarget.Text) == true)
             {
                 if (pathGridMembers.Any(x => (x.Source == textTarget.Text) && (x.Target == textSource.Text)))
                 {
                     labelError.ForeColor = Color.Red;
-                    labelError.Text = "Set SyncType to \"Mirror\" if you wish to monitor both folders!";
+                    labelError.Text = "An identical folder pair is already being monitored. Set SyncType to \"Mirror\" if you wish to monitor both folders!";
                 }
                 else
                 {
@@ -199,23 +213,55 @@ namespace SyncAppGUI
 
         private void pathGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-            DataGridViewCheckBoxCell ch1 = new DataGridViewCheckBoxCell();
 
-            ch1= (DataGridViewCheckBoxCell)pathGrid.Rows[pathGrid.CurrentRow.Index].Cells[4];
-            if (ch1.Value == null)
-                ch1.Value = false;
-            switch (ch1.Value.ToString())
+            if (e.ColumnIndex == pathGrid.Columns["AutoSync"].Index)
             {
-                case "True":
-                    ch1.Value = false;
-                    pathGrid.Rows[pathGrid.CurrentRow.Index].Cells[4].Value = false;
-                    break;
-                case "False":
-                    ch1.Value = true;
-                    pathGrid.Rows[pathGrid.CurrentRow.Index].Cells[4].Value = true;
-                    break;
+                DataGridViewCheckBoxCell ch1 = (DataGridViewCheckBoxCell)pathGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                if (ch1.Value == null) ch1.Value = false;
+
+                int index=pathGridMembers.IndexOf(pathGridMembers.First(x => (x.Source == (string)pathGrid.Rows[e.RowIndex].Cells["Source path"].Value) && (x.Target == (string)pathGrid.Rows[e.RowIndex].Cells["Target path"].Value)));
+                switch (ch1.Value.ToString())
+                {
+                    case "True":
+                        
+                        pathGridMembers[index].AutoSync = false;
+                        ch1.Value = false;
+                        break;
+                    case "False":
+                        pathGridMembers[index].AutoSync = true;
+                        ch1.Value = true;
+                        break;
+                }
+            }
+            pathGrid.EndEdit();
+        }
+        //handles the changes in the combobox
+        private void pathGrid_DirtyCell(object sender, EventArgs e)
+        {
+            if (pathGrid.IsCurrentCellDirty &&pathGrid.CurrentCell is DataGridViewComboBoxCell)
+            {
+                int index = pathGridMembers.IndexOf(pathGridMembers.First
+                    (x => (x.Source == (string)pathGrid.Rows[pathGrid.CurrentRow.Index].Cells["Source path"].Value)
+                    && (x.Target == (string)pathGrid.Rows[pathGrid.CurrentRow.Index].Cells["Target path"].Value)));
+                
+                pathGridMembers[index].SyncType=(string)pathGrid.CurrentCell.Value;
             }
         }
+        private void pathGrid_OnClick(object sender, DataGridViewCellEventArgs e)
+        {
+            if (e.RowIndex>=0)
+            {
+                if (e.ColumnIndex == pathGrid.Rows[e.RowIndex].Cells["Delete"].ColumnIndex)
+                {
+                    int index = pathGridMembers.IndexOf(pathGridMembers.First(x => (x.Source == (string)pathGrid.Rows[e.RowIndex].Cells["Source path"].Value) && (x.Target == (string)pathGrid.Rows[e.RowIndex].Cells["Target path"].Value)));
+                    pathGridMembers.Remove(pathGridMembers[index]);
+                    pathGrid.EndEdit();
+
+                }
+            }
+        }
+
     }
     
 }

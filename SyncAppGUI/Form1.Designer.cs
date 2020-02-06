@@ -38,6 +38,10 @@
             this.labelSource = new System.Windows.Forms.Label();
             this.labelTarget = new System.Windows.Forms.Label();
             this.labelError = new System.Windows.Forms.Label();
+            this.asasToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.ddadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.fsfsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).BeginInit();
             this.SuspendLayout();
             // 
@@ -135,6 +139,26 @@
             this.labelError.Size = new System.Drawing.Size(0, 13);
             this.labelError.TabIndex = 9;
             // 
+            // asasToolStripMenuItem
+            // 
+            this.asasToolStripMenuItem.Name = "asasToolStripMenuItem";
+            this.asasToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
+            // ddadToolStripMenuItem
+            // 
+            this.ddadToolStripMenuItem.Name = "ddadToolStripMenuItem";
+            this.ddadToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
+            // sdToolStripMenuItem
+            // 
+            this.sdToolStripMenuItem.Name = "sdToolStripMenuItem";
+            this.sdToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
+            // fsfsToolStripMenuItem
+            // 
+            this.fsfsToolStripMenuItem.Name = "fsfsToolStripMenuItem";
+            this.fsfsToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -170,6 +194,10 @@
         private System.Windows.Forms.Label labelSource;
         private System.Windows.Forms.Label labelTarget;
         private System.Windows.Forms.Label labelError;
+        private System.Windows.Forms.ToolStripMenuItem asasToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem ddadToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sdToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem fsfsToolStripMenuItem;
     }
 }
 

@@ -21,15 +21,20 @@ namespace SyncAppGUI
         public string TFolder => targetFolder;
 
         bool autoSync;
-        public enum syncType
+        public enum syncTypes
         {
             Mirror,
             Constructive,
             Destructive
         }
-        public string SyncType;
+        string sync_Type;
+        public string SyncType { get { return sync_Type; } set { sync_Type = value; } }
 
-        public bool AutoSync => autoSync;
+        public bool AutoSync
+        {
+            get { return autoSync; }
+            set { autoSync = value; }
+        }
         
         public pathGridMember(string source, string target)
         {
