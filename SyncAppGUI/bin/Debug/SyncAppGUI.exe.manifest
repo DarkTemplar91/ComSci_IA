@@ -42,14 +42,14 @@
     </dependentAssembly>
   </dependency>
   <dependency>
-    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SyncAppGUI.exe" size="19936">
+    <dependentAssembly dependencyType="install" allowDelayedBinding="true" codebase="SyncAppGUI.exe" size="20448">
       <assemblyIdentity name="SyncAppGUI" version="1.0.0.0" language="neutral" processorArchitecture="msil" />
       <hash>
         <dsig:Transforms>
           <dsig:Transform Algorithm="urn:schemas-microsoft-com:HashTransforms.Identity" />
         </dsig:Transforms>
         <dsig:DigestMethod Algorithm="http://www.w3.org/2000/09/xmldsig#sha256" />
-        <dsig:DigestValue>/Fy1Uxyo6rU/p4jD9cpvhvTicV4Se5O7xO90rO7KPL4=</dsig:DigestValue>
+        <dsig:DigestValue>JmsiVPt+5mjZy6K03EpHJG+oGLsaBMA8zuSkkj2oLGE=</dsig:DigestValue>
       </hash>
     </dependentAssembly>
   </dependency>

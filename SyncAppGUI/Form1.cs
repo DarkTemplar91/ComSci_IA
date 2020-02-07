@@ -69,6 +69,7 @@ namespace SyncAppGUI
 
             buttonColumn.FlatStyle = FlatStyle.Standard;
             pathGrid.Columns.Add(buttonColumn);
+            pathGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             
         }
         private void AddButton_Click(object sender, EventArgs e)
@@ -166,8 +167,8 @@ namespace SyncAppGUI
             {
                 textSource.BackColor = Color.White;
                 textSource.ForeColor = Color.Black;
-                labelSource.Text = "";
-                labelError.Text = "";
+                labelSource.Text = null;
+                labelError.Text = null;
             }
             else if (Evaluation(textSource.Text) == false)
             {
@@ -180,7 +181,7 @@ namespace SyncAppGUI
             }
             else
             {
-                labelSource.Text = "";
+                labelSource.Text = null;
                 textSource.BackColor = Color.White;
                 textSource.ForeColor = Color.Black;
             }
@@ -190,10 +191,10 @@ namespace SyncAppGUI
             
             if (string.IsNullOrWhiteSpace(textTarget.Text))
             {
-                labelTarget.Text = "";
+                labelTarget.Text = null;
                 textTarget.BackColor = Color.White;
                 textTarget.ForeColor = Color.Black;
-                labelError.Text = "";
+                labelError.Text = null;
             }
             else if (Evaluation(textTarget.Text) == false)
             {
@@ -205,7 +206,7 @@ namespace SyncAppGUI
             }
             else
             {
-                labelTarget.Text = "";
+                labelTarget.Text = null;
                 textTarget.BackColor = Color.White;
                 textTarget.ForeColor = Color.Black;
             }
@@ -262,6 +263,15 @@ namespace SyncAppGUI
             }
         }
 
+        private void ClearButton_Click(object sender, EventArgs e)
+        {
+            textSource.Text = null;
+            textTarget.Text = null;
+            textSource.Focus();
+            textTarget.Focus();
+            textTarget.Focus();
+            swapButton.Focus();
+        }
     }
     
 }

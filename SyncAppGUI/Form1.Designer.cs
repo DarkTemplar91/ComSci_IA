@@ -42,6 +42,7 @@
             this.ddadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sdToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.fsfsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.clearButton = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).BeginInit();
             this.SuspendLayout();
             // 
@@ -159,11 +160,22 @@
             this.fsfsToolStripMenuItem.Name = "fsfsToolStripMenuItem";
             this.fsfsToolStripMenuItem.Size = new System.Drawing.Size(32, 19);
             // 
+            // clearButton
+            // 
+            this.clearButton.Location = new System.Drawing.Point(150, 340);
+            this.clearButton.Name = "clearButton";
+            this.clearButton.Size = new System.Drawing.Size(461, 23);
+            this.clearButton.TabIndex = 10;
+            this.clearButton.Text = "Clear";
+            this.clearButton.UseVisualStyleBackColor = true;
+            this.clearButton.Click += new System.EventHandler(this.ClearButton_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.clearButton);
             this.Controls.Add(this.labelError);
             this.Controls.Add(this.labelTarget);
             this.Controls.Add(this.labelSource);
@@ -198,6 +210,7 @@
         private System.Windows.Forms.ToolStripMenuItem ddadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem sdToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fsfsToolStripMenuItem;
+        private System.Windows.Forms.Button clearButton;
     }
 }
 
