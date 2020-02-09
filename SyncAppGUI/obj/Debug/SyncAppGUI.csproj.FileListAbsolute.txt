@@ -26,3 +26,17 @@ I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGU
 I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.application
 I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.exe
 I:\Comp Science\ComSci_IA-master\ComSci_IA-master\SyncAppGUI\obj\Debug\SyncAppGUI.pdb
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\bin\Debug\SyncAppGUI.exe.config
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\bin\Debug\SyncAppGUI.exe.manifest
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\bin\Debug\SyncAppGUI.application
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\bin\Debug\SyncAppGUI.exe
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\bin\Debug\SyncAppGUI.pdb
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.csprojAssemblyReference.cache
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.Form1.resources
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.Properties.Resources.resources
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.csproj.GenerateResource.cache
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.exe.manifest
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.application
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.exe
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.pdb
+C:\Users\Vivi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.settingForm.resources

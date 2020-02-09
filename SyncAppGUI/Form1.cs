@@ -22,55 +22,68 @@ namespace SyncAppGUI
             pathGrid.CurrentCellDirtyStateChanged += new EventHandler(pathGrid_DirtyCell);
             pathGrid.CellClick += new DataGridViewCellEventHandler(pathGrid_OnClick);
             pathGrid.DataSource = pathGridMembers;
-            
+            toolTip1.SetToolTip(pathGrid, "yaaay");
+            toolTip1.SetToolTip(addButton, "Add new folder pair");
+            toolTip1.SetToolTip(swapButton, "Swap the two texts");
+            toolTip1.SetToolTip(browseSource, "Select the source folder");
+            toolTip1.SetToolTip(browseTarget, "Select the target folder");
+
         }
 
 
-        static BindingList<pathGridMember> pathGridMembers = new BindingList<pathGridMember>();
+        static readonly BindingList<pathGridMember> pathGridMembers = new BindingList<pathGridMember>();
         
 
 
         public void Grid()
         {
             
-            pathGrid.AllowUserToAddRows = false;
-            pathGrid.AllowUserToOrderColumns = true;
-            pathGrid.AllowUserToOrderColumns = false;
+            this.pathGrid.AllowUserToAddRows = false;
+            this.pathGrid.AllowUserToOrderColumns = true;
+            this.pathGrid.AllowUserToOrderColumns = false;
 
             //add sorting to BindingList later as this does not work
-            foreach (DataGridViewColumn col in pathGrid.Columns)
+            foreach (DataGridViewColumn col in this.pathGrid.Columns)
             {
                 col.SortMode = DataGridViewColumnSortMode.Automatic;
             }
 
-            pathGrid.ColumnCount = 4;
-            pathGrid.Columns[0].DataPropertyName = "SFolder";
-            pathGrid.Columns[0].Name = "Source Folder";
-            pathGrid.Columns[1].DataPropertyName = "Source";
-            pathGrid.Columns[1].Name = "Source Path";
-            pathGrid.Columns[2].DataPropertyName = "Target";
-            pathGrid.Columns[2].Name = "Target Path";
-            pathGrid.Columns[3].DataPropertyName = "TFolder";
-            pathGrid.Columns[3].Name = "Target Folder";
+            this.pathGrid.ColumnCount = 4;
+            this.pathGrid.Columns[0].DataPropertyName = "SFolder";
+            this.pathGrid.Columns[0].Name = "Source Folder";
+            this.pathGrid.Columns[1].DataPropertyName = "Source";
+            this.pathGrid.Columns[1].Name = "Source Path";
+            this.pathGrid.Columns[2].DataPropertyName = "Target";
+            this.pathGrid.Columns[2].Name = "Target Path";
+            this.pathGrid.Columns[3].DataPropertyName = "TFolder";
+            this.pathGrid.Columns[3].Name = "Target Folder";
             DataGridViewCheckBoxColumn checkBoxColumn = new DataGridViewCheckBoxColumn();
-            pathGrid.Columns.Add(checkBoxColumn);
-            pathGrid.Columns[4].Name = "AutoSync";
-            pathGrid.Columns[4].DataPropertyName = "AutoSync";
+            this.pathGrid.Columns.Add(checkBoxColumn);
+            this.pathGrid.Columns[4].Name = "AutoSync";
+            this.pathGrid.Columns[4].DataPropertyName = "AutoSync";
             DataGridViewComboBoxColumn comboBoxColumn = new DataGridViewComboBoxColumn();
             comboBoxColumn.DataSource = Enum.GetNames(typeof(pathGridMember.syncTypes));
-            pathGrid.Columns.Add(comboBoxColumn);
-            pathGrid.Columns[5].Name = "Sync Type";
-            pathGrid.Columns[5].DataPropertyName = "SyncType";
-            DataGridViewButtonColumn buttonColumn = new DataGridViewButtonColumn();
-            buttonColumn.Name = "Delete";
-            buttonColumn.HeaderText = "Delete";
-            buttonColumn.Text = "Delete";
-            buttonColumn.Resizable = DataGridViewTriState.False;
+            this.pathGrid.Columns.Add(comboBoxColumn);
+            this.pathGrid.Columns[5].Name = "Sync Type";
+            this.pathGrid.Columns[5].DataPropertyName = "SyncType";
+            DataGridViewButtonColumn buttonColumn = new DataGridViewButtonColumn
+            {
+                Name = "Delete",
+                HeaderText = "Delete",
+                Text = "Delete",
+                Resizable = DataGridViewTriState.False,
 
-            buttonColumn.FlatStyle = FlatStyle.Standard;
-            pathGrid.Columns.Add(buttonColumn);
-            pathGrid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                FlatStyle = FlatStyle.Standard
+            };
+            this.pathGrid.Columns.Add(buttonColumn);
+
+           foreach(DataGridViewColumn c in pathGrid.Columns)
+            {
+                c.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            }
+
             
+
         }
         private void AddButton_Click(object sender, EventArgs e)
         {
@@ -118,8 +131,8 @@ namespace SyncAppGUI
         }
         private void SwapButton_Click(object sender, EventArgs e)
         {
-            string temp = "";
-            temp = textSource.Text;
+            
+            string temp = textSource.Text;
             textSource.Text = textTarget.Text;
             textTarget.Text = temp;
             textSource.Focus();
@@ -271,6 +284,23 @@ namespace SyncAppGUI
             textTarget.Focus();
             textTarget.Focus();
             swapButton.Focus();
+        }
+
+        private void syncNowButton_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Close();
+        }
+
+        private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            settingForm form = new settingForm();
+            this.Hide();
+            form.Show();
         }
     }
     
