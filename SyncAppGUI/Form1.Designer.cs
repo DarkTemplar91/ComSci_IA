@@ -50,6 +50,10 @@
             this.loadToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.settingsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.saveFileDialog1 = new System.Windows.Forms.SaveFileDialog();
+            this.buttonSave = new System.Windows.Forms.Button();
+            this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
+            this.buttonOpen = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).BeginInit();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -150,7 +154,7 @@
             // 
             // clearButton
             // 
-            this.clearButton.Location = new System.Drawing.Point(150, 340);
+            this.clearButton.Location = new System.Drawing.Point(150, 369);
             this.clearButton.Name = "clearButton";
             this.clearButton.Size = new System.Drawing.Size(461, 23);
             this.clearButton.TabIndex = 10;
@@ -160,9 +164,9 @@
             // 
             // syncNowButton
             // 
-            this.syncNowButton.Location = new System.Drawing.Point(311, 41);
+            this.syncNowButton.Location = new System.Drawing.Point(287, 61);
             this.syncNowButton.Name = "syncNowButton";
-            this.syncNowButton.Size = new System.Drawing.Size(99, 53);
+            this.syncNowButton.Size = new System.Drawing.Size(137, 53);
             this.syncNowButton.TabIndex = 11;
             this.syncNowButton.Text = "SyncNow";
             this.syncNowButton.UseVisualStyleBackColor = true;
@@ -195,7 +199,7 @@
             this.saveToolStripMenuItem,
             this.loadToolStripMenuItem});
             this.loadoutToolStripMenuItem.Name = "loadoutToolStripMenuItem";
-            this.loadoutToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.loadoutToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.loadoutToolStripMenuItem.Text = "Loadout";
             // 
             // deleteToolStripMenuItem
@@ -219,22 +223,48 @@
             // settingsToolStripMenuItem
             // 
             this.settingsToolStripMenuItem.Name = "settingsToolStripMenuItem";
-            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.settingsToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.settingsToolStripMenuItem.Text = "Settings";
             this.settingsToolStripMenuItem.Click += new System.EventHandler(this.settingsToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(180, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(118, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
+            // 
+            // buttonSave
+            // 
+            this.buttonSave.Location = new System.Drawing.Point(618, 184);
+            this.buttonSave.Name = "buttonSave";
+            this.buttonSave.Size = new System.Drawing.Size(75, 23);
+            this.buttonSave.TabIndex = 13;
+            this.buttonSave.Text = "SavePaths";
+            this.buttonSave.UseVisualStyleBackColor = true;
+            this.buttonSave.Click += new System.EventHandler(this.ButtonSave_Click);
+            // 
+            // openFileDialog1
+            // 
+            this.openFileDialog1.FileName = "openFileDialog1";
+            // 
+            // buttonOpen
+            // 
+            this.buttonOpen.Location = new System.Drawing.Point(618, 214);
+            this.buttonOpen.Name = "buttonOpen";
+            this.buttonOpen.Size = new System.Drawing.Size(75, 23);
+            this.buttonOpen.TabIndex = 14;
+            this.buttonOpen.Text = "Open Paths";
+            this.buttonOpen.UseVisualStyleBackColor = true;
+            this.buttonOpen.Click += new System.EventHandler(this.ButtonOpen_Click);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.buttonOpen);
+            this.Controls.Add(this.buttonSave);
             this.Controls.Add(this.syncNowButton);
             this.Controls.Add(this.clearButton);
             this.Controls.Add(this.labelError);
@@ -281,6 +311,10 @@
         private System.Windows.Forms.ToolStripMenuItem loadToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem settingsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog1;
+        private System.Windows.Forms.Button buttonSave;
+        private System.Windows.Forms.OpenFileDialog openFileDialog1;
+        private System.Windows.Forms.Button buttonOpen;
     }
 }
 

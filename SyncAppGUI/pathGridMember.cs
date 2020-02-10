@@ -35,7 +35,6 @@ namespace SyncAppGUI
             get { return autoSync; }
             set { autoSync = value; }
         }
-        
         public pathGridMember(string source, string target)
         {
             targetPath = target;

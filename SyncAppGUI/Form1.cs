@@ -8,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.IO;
 
 namespace SyncAppGUI
 {
@@ -27,6 +28,11 @@ namespace SyncAppGUI
             toolTip1.SetToolTip(swapButton, "Swap the two texts");
             toolTip1.SetToolTip(browseSource, "Select the source folder");
             toolTip1.SetToolTip(browseTarget, "Select the target folder");
+            saveFileDialog1.Filter= "Text Files (.txt)| *.txt|Comma Seperated Values File (.csv)|*.csv";
+            saveFileDialog1.DefaultExt = "*.csv";
+            openFileDialog1.Filter= "Text Files (.txt)| *.txt|Comma Seperated Values File (.csv)|*.csv";
+            openFileDialog1.DefaultExt = saveFileDialog1.InitialDirectory;
+
 
         }
 
@@ -87,6 +93,7 @@ namespace SyncAppGUI
         }
         private void AddButton_Click(object sender, EventArgs e)
         {
+            if (Directory.Exists(textSource.Text) == false || Directory.Exists(textTarget.Text) == false) return;
             if (string.IsNullOrEmpty(textTarget.Text) && string.IsNullOrEmpty(textSource.Text)) ;
             else if(string.IsNullOrEmpty(textTarget.Text) || string.IsNullOrEmpty(textSource.Text))
             {
@@ -101,7 +108,26 @@ namespace SyncAppGUI
                 }
                 else
                 {
-                    pathGridMembers.Add(new pathGridMember(textSource.Text, textTarget.Text));
+                    
+                    string s = "";
+                    string t = "";
+                    if (textSource.Text.EndsWith("\\"))
+                    {
+                        s = textSource.Text.Substring(0, textSource.Text.Length - 2);
+                    }
+                    if (textTarget.Text.EndsWith("\\"))
+                    {
+                        t = textTarget.Text.Substring(0, textTarget.Text.Length - 2);
+                    }
+
+                    if (IsSubdirectory(s, t) || IsSubdirectory(t, s))
+                    {
+                        labelError.Text = "One of the folders is a subfolder of the other one!";
+                        
+                        return;
+                    }
+
+                    pathGridMembers.Add(new pathGridMember(s, t));
                     pathGrid.Refresh();
 
                 }
@@ -192,6 +218,13 @@ namespace SyncAppGUI
                 labelSource.ForeColor = Color.Red;
                 labelSource.Text = "Path input is invalid!";
             }
+            else if (Directory.Exists(textSource.Text) != true)
+            {
+                textSource.BackColor = Color.Red;
+                textSource.ForeColor = Color.WhiteSmoke;
+                labelSource.ForeColor = Color.Red;
+                labelSource.Text = "The folder does not exist!";
+            }
             else
             {
                 labelSource.Text = null;
@@ -216,6 +249,13 @@ namespace SyncAppGUI
                 textTarget.ForeColor = Color.WhiteSmoke;
                 labelTarget.ForeColor = Color.Red;
                 labelTarget.Text = "Path input is invalid!";
+            }
+            else if (Directory.Exists(textTarget.Text) != true)
+            {
+                textTarget.BackColor = Color.Red;
+                textTarget.ForeColor = Color.WhiteSmoke;
+                labelTarget.ForeColor = Color.Red;
+                labelTarget.Text = "The folder does not exist!";
             }
             else
             {
@@ -250,7 +290,6 @@ namespace SyncAppGUI
             }
             pathGrid.EndEdit();
         }
-        //handles the changes in the combobox
         private void pathGrid_DirtyCell(object sender, EventArgs e)
         {
             if (pathGrid.IsCurrentCellDirty &&pathGrid.CurrentCell is DataGridViewComboBoxCell)
@@ -264,6 +303,7 @@ namespace SyncAppGUI
         }
         private void pathGrid_OnClick(object sender, DataGridViewCellEventArgs e)
         {
+            
             if (e.RowIndex>=0)
             {
                 if (e.ColumnIndex == pathGrid.Rows[e.RowIndex].Cells["Delete"].ColumnIndex)
@@ -299,9 +339,95 @@ namespace SyncAppGUI
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             settingForm form = new settingForm();
-            this.Hide();
-            form.Show();
+            form.ShowDialog();
         }
+
+        private void ButtonSave_Click(object sender, EventArgs e)
+        {
+            DialogResult res=saveFileDialog1.ShowDialog();
+
+            if (res == DialogResult.OK)
+            {
+                String fileName = saveFileDialog1.FileName;
+                Save(fileName);
+            }
+        }
+        private void ButtonOpen_Click(object sender, EventArgs e)
+        {
+            DialogResult res = openFileDialog1.ShowDialog();
+
+            if (res == DialogResult.OK)
+            {
+                string fileName = openFileDialog1.FileName;
+                Load(fileName);
+            }
+
+        }
+        public void Save(string path)
+        {
+            using (StreamWriter sr = new StreamWriter(path))
+            {
+                for(int n = 0; n < pathGrid.Rows.Count; n++)
+                {
+                    string row = pathGridMembers[n].SFolder + ";" + pathGridMembers[n].Source +
+                        ";" + pathGridMembers[n].Target + ";" + pathGridMembers[n].TFolder + ";" +
+                        pathGridMembers[n].AutoSync + ";" + pathGridMembers[n].SyncType + ";";
+                    sr.WriteLine(row);
+                }
+            }
+        }
+        public void Load(string path)
+        {
+            
+            using (StreamReader sr=new StreamReader(path))
+            {
+                string line = "";
+                pathGridMembers.Clear();
+                while ((line = sr.ReadLine()) != null)
+                {
+                    string[] arr = line.Split(';');
+                    pathGridMembers.Add(new pathGridMember(arr[1], arr[2]));
+                    if (arr[3] == pathGridMember.syncTypes.Constructive.ToString())
+                    {
+                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Constructive.ToString();
+                    }
+                    else if (arr[3] == pathGridMember.syncTypes.Destructive.ToString())
+                    {
+                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Destructive.ToString();
+                    }
+                    else if (arr[3] == null) ;
+                    else
+                    {
+                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Mirror.ToString();
+                    }
+                    pathGridMembers.Last().AutoSync = Convert.ToBoolean(arr[4]);
+                    
+                }
+            }
+            
+        }
+
+        public static bool IsSubdirectory(string parentDir, string subDir)
+        {
+
+            string p1 = parentDir;
+            string p2 = subDir;
+            DirectoryInfo di1 = new DirectoryInfo(p1);
+            DirectoryInfo di2 = new DirectoryInfo(p2);
+            bool isParent = false;
+            while (di2.Parent != null)
+            {
+                if (di2.Parent.FullName == di1.FullName)
+                {
+                    isParent = true;
+                    break;
+                }
+                else di2 = di2.Parent;
+            }
+            return isParent;
+        }
+
+        
     }
     
 }
