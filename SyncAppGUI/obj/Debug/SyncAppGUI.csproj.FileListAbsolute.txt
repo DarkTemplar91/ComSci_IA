@@ -55,3 +55,4 @@ C:\Users\Brigi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.exe.manife
 C:\Users\Brigi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.application
 C:\Users\Brigi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.exe
 C:\Users\Brigi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.pdb
+C:\Users\Brigi\Source\Repos\ComSci_IA\SyncAppGUI\obj\Debug\SyncAppGUI.templateForm.resources

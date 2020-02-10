@@ -20,12 +20,18 @@ namespace SyncAppGUI
         }
         public void SettingsGUI()
         {
+            this.Name = "Settings";
+
+            textBox1.Enabled = false;
+            textBox1.Text = settings.defaultSave;
+
             this.FormBorderStyle = FormBorderStyle.FixedDialog;
             dateTimePicker1.Format = DateTimePickerFormat.Custom;
             dateTimePicker1.CustomFormat = "HH:mm";
             dateTimePicker1.ShowUpDown = true;
             dateTimePicker1.Enabled = true;
             dateTimePicker1.MinDate = DateTime.MinValue;
+            dateTimePicker1.Hide();
             if (settings.syncType == settings.SyncTypes.TimeInterval.ToString())
             {
                 dateTimePicker1.Value = settings.intervalDate;
@@ -33,7 +39,6 @@ namespace SyncAppGUI
             }
             else dateTimePicker1.Value = new DateTime(year:DateTime.Now.Year,month:DateTime.Now.Month,day:DateTime.Now.Day,hour:00, minute: 00, second:00);
             
-            dateTimePicker1.Hide();
 
 
 
@@ -41,10 +46,14 @@ namespace SyncAppGUI
             maskedTextBox1.TextMaskFormat = MaskFormat.IncludeLiterals;
             maskedTextBox1.SelectionStart = 0;
             maskedTextBox1.SelectionLength = 0;
+            maskedTextBox1.Hide();
             if (settings.syncType == settings.SyncTypes.SetTimes.ToString())
             {
-                syncDateTime = settings.dateTimes.ConvertAll(x => Convert.ToString(x));
-                syncDateTime.Select(x => x.Substring(x.Length - 6).Trim());
+                if (settings.dateTimes != null)
+                {
+                    syncDateTime = settings.dateTimes.ConvertAll(x => Convert.ToString(x));
+                    syncDateTime.Select(x => x.Substring(x.Length - 6).Trim());
+                }
                 foreach(string s in syncDateTime)
                 {
                     int index = timeGrid.Rows.Add();
@@ -54,14 +63,13 @@ namespace SyncAppGUI
                 radiob_Set.Checked = true;
 
             }
-            maskedTextBox1.Hide();
             
         }
         static List<string> syncDateTime = new List<string>();
-        static string syncAt;
+        static string defaultPath;
         private void radiob_Set_CheckedChanged(object sender, EventArgs e)
         {
-            syncAt = radiob_Set.Text;
+            settings.syncType = settings.SyncTypes.SetTimes.ToString();
             dateTimePicker1.Hide();
 
             timeGrid.Show();
@@ -74,7 +82,7 @@ namespace SyncAppGUI
 
         private void radiob_Interval_CheckedChanged(object sender, EventArgs e)
         {
-            syncAt = radiob_interval.Text;
+            settings.syncType = settings.SyncTypes.TimeInterval.ToString();
             dateTimePicker1.Show();
 
             timeGrid.Hide();
@@ -177,13 +185,42 @@ namespace SyncAppGUI
             {
                 settings.syncType = settings.SyncTypes.TimeInterval.ToString();
                 settings.interval = dateTimePicker1.Value.Hour * 60 * 60 * 1000 + dateTimePicker1.Value.Minute * 60 * 1000;
-                settings.intervalDate = dateTimePicker1.Value.Date;
+                settings.intervalDate = dateTimePicker1.Value;
             }
             else
             {
                 settings.syncType = settings.SyncTypes.SetTimes.ToString();
                 settings.dateTimes =syncDateTime.ConvertAll(x => DateTime.ParseExact(x, "HH:mm", null));
             }
+            settings.defaultSave = textBox1.Text;
+        }
+
+        private void ButtonBrowse_Click(object sender, EventArgs e)
+        {
+            DialogResult res=folderBrowserDialog1.ShowDialog();
+            if (res == DialogResult.OK)
+            {
+                string defaultPath = folderBrowserDialog1.SelectedPath;
+                textBox1.Text = defaultPath;
+            }
+
+        }
+
+        private void ButtonReset_Click(object sender, EventArgs e)
+        {
+            settings.defaultSave = settings.resetSave;
+            if (settings.dateTimes != null)
+            {
+                settings.dateTimes.Clear();
+            }
+            settings.interval = 0;
+            settings.intervalDate = DateTime.Now.Date;
+            settings.syncType = null;
+            syncDateTime.Clear();
+            timeGrid.Rows.Clear();
+            SettingsGUI();
+            radiob_interval.Focus();
+            radiob_Set.Focus();
         }
     }
 }

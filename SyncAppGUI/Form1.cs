@@ -17,6 +17,7 @@ namespace SyncAppGUI
         public Form1()
         {
             InitializeComponent();
+            this.Name = "AutoSyncApp";
             pathGrid.AutoGenerateColumns = false;
             Grid();
             pathGrid.CellContentClick += new DataGridViewCellEventHandler(pathGrid_CellValueChanged);
@@ -33,14 +34,10 @@ namespace SyncAppGUI
             openFileDialog1.Filter= "Text Files (.txt)| *.txt|Comma Seperated Values File (.csv)|*.csv";
             openFileDialog1.DefaultExt = saveFileDialog1.InitialDirectory;
 
-
         }
-
-
+        
         static readonly BindingList<pathGridMember> pathGridMembers = new BindingList<pathGridMember>();
         
-
-
         public void Grid()
         {
             
@@ -115,16 +112,22 @@ namespace SyncAppGUI
                     {
                         s = textSource.Text.Substring(0, textSource.Text.Length - 2);
                     }
-                    if (textTarget.Text.EndsWith("\\"))
+                    else if (textTarget.Text.EndsWith("\\"))
                     {
                         t = textTarget.Text.Substring(0, textTarget.Text.Length - 2);
                     }
-
-                    if (IsSubdirectory(s, t) || IsSubdirectory(t, s))
+                    else
                     {
-                        labelError.Text = "One of the folders is a subfolder of the other one!";
+                        s = textSource.Text;
+                        t = textTarget.Text;
+
+                        if (IsSubdirectory(s, t) || IsSubdirectory(t, s))
+                        {
+                            labelError.Text = "One of the folders is a subfolder of the other one!";
+
+                            return;
+                        }
                         
-                        return;
                     }
 
                     pathGridMembers.Add(new pathGridMember(s, t));
@@ -344,6 +347,11 @@ namespace SyncAppGUI
 
         private void ButtonSave_Click(object sender, EventArgs e)
         {
+            if (!Directory.Exists(settings.defaultSave))
+            {
+                Directory.CreateDirectory(settings.defaultSave);
+            }
+            saveFileDialog1.InitialDirectory = settings.defaultSave;
             DialogResult res=saveFileDialog1.ShowDialog();
 
             if (res == DialogResult.OK)
@@ -354,6 +362,11 @@ namespace SyncAppGUI
         }
         private void ButtonOpen_Click(object sender, EventArgs e)
         {
+            if (!Directory.Exists(settings.defaultSave))
+            {
+                Directory.CreateDirectory(settings.defaultSave);
+            }
+            openFileDialog1.InitialDirectory = settings.defaultSave;
             DialogResult res = openFileDialog1.ShowDialog();
 
             if (res == DialogResult.OK)
@@ -365,7 +378,7 @@ namespace SyncAppGUI
         }
         public void Save(string path)
         {
-            using (StreamWriter sr = new StreamWriter(path))
+            using (StreamWriter sr = new StreamWriter(path.Substring(0, path.Length - 4) + "_grid" + path.Substring(path.Length - 4))) 
             {
                 for(int n = 0; n < pathGrid.Rows.Count; n++)
                 {
@@ -427,7 +440,11 @@ namespace SyncAppGUI
             return isParent;
         }
 
-        
+        private void ManageToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            templateForm temp = new templateForm();
+            temp.Show();
+        }
     }
     
 }

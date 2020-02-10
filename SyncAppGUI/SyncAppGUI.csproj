@@ -93,6 +93,12 @@
       <DependentUpon>settingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="settings.cs" />
+    <Compile Include="templateForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="templateForm.Designer.cs">
+      <DependentUpon>templateForm.cs</DependentUpon>
+    </Compile>
     <EmbeddedResource Include="Form1.resx">
       <DependentUpon>Form1.cs</DependentUpon>
     </EmbeddedResource>
@@ -107,6 +113,9 @@
     </Compile>
     <EmbeddedResource Include="settingForm.resx">
       <DependentUpon>settingForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="templateForm.resx">
+      <DependentUpon>templateForm.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

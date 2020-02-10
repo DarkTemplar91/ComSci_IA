@@ -18,7 +18,11 @@ namespace SyncAppGUI
         public static int interval;
         public static DateTime intervalDate;
         public static List<DateTime> dateTimes;
+        public static readonly string resetSave= Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\SyncApp\\";
+        public static string defaultSave = resetSave;
+        public void Read()
+        {
 
-        
+        }
     }
 }
