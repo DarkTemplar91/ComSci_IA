@@ -8,6 +8,7 @@ namespace SyncAppGUI
 {
     class pathGridMember
     {
+        
         string sourcePath;
         string targetPath;
         string sourceFolder;
@@ -38,9 +39,18 @@ namespace SyncAppGUI
         public pathGridMember(string source, string target)
         {
             targetPath = target;
-            targetFolder = Trim(target);
             sourcePath = source;
-            sourceFolder = Trim(source);
+
+            if (target.Length != 3)
+            {
+                targetFolder = Trim(target);
+            }
+            else targetFolder = target;
+            if (source.Length != 3)
+            {
+                sourceFolder = Trim(source);
+            }
+            else sourceFolder = source;
         }
         private static string Trim(string source)
         {

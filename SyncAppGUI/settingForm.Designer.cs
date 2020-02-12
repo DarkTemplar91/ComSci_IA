@@ -48,6 +48,7 @@
             this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             this.buttonReset = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.timeGrid)).BeginInit();
+            this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -97,7 +98,7 @@
             // 
             // dateTimePicker1
             // 
-            this.dateTimePicker1.Location = new System.Drawing.Point(12, 119);
+            this.dateTimePicker1.Location = new System.Drawing.Point(10, 50);
             this.dateTimePicker1.Name = "dateTimePicker1";
             this.dateTimePicker1.Size = new System.Drawing.Size(84, 20);
             this.dateTimePicker1.TabIndex = 3;
@@ -110,10 +111,10 @@
             this.timeGrid.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.SyncTime,
             this.Delete});
-            this.timeGrid.Location = new System.Drawing.Point(12, 145);
+            this.timeGrid.Location = new System.Drawing.Point(12, 130);
             this.timeGrid.Name = "timeGrid";
             this.timeGrid.ReadOnly = true;
-            this.timeGrid.Size = new System.Drawing.Size(243, 82);
+            this.timeGrid.Size = new System.Drawing.Size(240, 97);
             this.timeGrid.TabIndex = 4;
             this.timeGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.TimeGrid_CellContentClick);
             // 
@@ -131,7 +132,7 @@
             // 
             // buttonAdd
             // 
-            this.buttonAdd.Location = new System.Drawing.Point(124, 119);
+            this.buttonAdd.Location = new System.Drawing.Point(116, 50);
             this.buttonAdd.Name = "buttonAdd";
             this.buttonAdd.Size = new System.Drawing.Size(24, 20);
             this.buttonAdd.TabIndex = 6;
@@ -141,7 +142,7 @@
             // 
             // maskedTextBox1
             // 
-            this.maskedTextBox1.Location = new System.Drawing.Point(16, 119);
+            this.maskedTextBox1.Location = new System.Drawing.Point(10, 50);
             this.maskedTextBox1.Name = "maskedTextBox1";
             this.maskedTextBox1.Size = new System.Drawing.Size(100, 20);
             this.maskedTextBox1.TabIndex = 7;
@@ -180,6 +181,9 @@
             // 
             // groupBox1
             // 
+            this.groupBox1.Controls.Add(this.maskedTextBox1);
+            this.groupBox1.Controls.Add(this.dateTimePicker1);
+            this.groupBox1.Controls.Add(this.buttonAdd);
             this.groupBox1.Location = new System.Drawing.Point(3, 54);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Size = new System.Drawing.Size(347, 184);
@@ -199,7 +203,7 @@
             // 
             // buttonBrowse
             // 
-            this.buttonBrowse.Location = new System.Drawing.Point(175, 20);
+            this.buttonBrowse.Location = new System.Drawing.Point(174, 17);
             this.buttonBrowse.Name = "buttonBrowse";
             this.buttonBrowse.Size = new System.Drawing.Size(75, 23);
             this.buttonBrowse.TabIndex = 1;
@@ -235,10 +239,7 @@
             this.Controls.Add(this.label3);
             this.Controls.Add(this.saveButton);
             this.Controls.Add(this.backButton);
-            this.Controls.Add(this.maskedTextBox1);
-            this.Controls.Add(this.buttonAdd);
             this.Controls.Add(this.timeGrid);
-            this.Controls.Add(this.dateTimePicker1);
             this.Controls.Add(this.radiob_interval);
             this.Controls.Add(this.radiob_Set);
             this.Controls.Add(this.label2);
@@ -247,6 +248,8 @@
             this.Name = "settingForm";
             this.Text = "settingForm";
             ((System.ComponentModel.ISupportInitialize)(this.timeGrid)).EndInit();
+            this.groupBox1.ResumeLayout(false);
+            this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
             this.ResumeLayout(false);

@@ -34,7 +34,10 @@ namespace SyncAppGUI
             dateTimePicker1.Hide();
             if (settings.syncType == settings.SyncTypes.TimeInterval.ToString())
             {
-                dateTimePicker1.Value = settings.intervalDate;
+                if (settings.intervalDate != null)
+                {
+                    dateTimePicker1.Value = settings.intervalDate;
+                }
                 radiob_interval.Checked = true;
             }
             else dateTimePicker1.Value = new DateTime(year:DateTime.Now.Year,month:DateTime.Now.Month,day:DateTime.Now.Day,hour:00, minute: 00, second:00);
@@ -52,7 +55,7 @@ namespace SyncAppGUI
                 if (settings.dateTimes != null)
                 {
                     syncDateTime = settings.dateTimes.ConvertAll(x => Convert.ToString(x));
-                    syncDateTime.Select(x => x.Substring(x.Length - 6).Trim());
+                    syncDateTime=syncDateTime.Select(x => x.Substring(x.Length - 8,5).Trim()).ToList();
                 }
                 foreach(string s in syncDateTime)
                 {
@@ -69,7 +72,6 @@ namespace SyncAppGUI
         static string defaultPath;
         private void radiob_Set_CheckedChanged(object sender, EventArgs e)
         {
-            settings.syncType = settings.SyncTypes.SetTimes.ToString();
             dateTimePicker1.Hide();
 
             timeGrid.Show();
@@ -82,7 +84,6 @@ namespace SyncAppGUI
 
         private void radiob_Interval_CheckedChanged(object sender, EventArgs e)
         {
-            settings.syncType = settings.SyncTypes.TimeInterval.ToString();
             dateTimePicker1.Show();
 
             timeGrid.Hide();
@@ -190,7 +191,8 @@ namespace SyncAppGUI
             else
             {
                 settings.syncType = settings.SyncTypes.SetTimes.ToString();
-                settings.dateTimes =syncDateTime.ConvertAll(x => DateTime.ParseExact(x, "HH:mm", null));
+                settings.dateTimes = syncDateTime.ConvertAll(x => DateTime.ParseExact(x, "HH:mm", null));
+                
             }
             settings.defaultSave = textBox1.Text;
         }
@@ -221,6 +223,7 @@ namespace SyncAppGUI
             SettingsGUI();
             radiob_interval.Focus();
             radiob_Set.Focus();
+            radiob_interval.Focus();
         }
     }
 }

@@ -17,6 +17,9 @@ namespace SyncAppGUI
         public Form1()
         {
             InitializeComponent();
+            // progressBar1.Dock = DockStyle.Bottom;
+            //progressBar1.Enabled = false;
+            SplitInit();
             this.Name = "AutoSyncApp";
             pathGrid.AutoGenerateColumns = false;
             Grid();
@@ -34,22 +37,34 @@ namespace SyncAppGUI
             openFileDialog1.Filter= "Text Files (.txt)| *.txt|Comma Seperated Values File (.csv)|*.csv";
             openFileDialog1.DefaultExt = saveFileDialog1.InitialDirectory;
 
+            pathGridMembers.ListChanged += new ListChangedEventHandler(bindingList_Changed);
+
+        }
+
+        public void SplitInit()
+        {
+            try
+            {
+                splitContainer1.Panel2MinSize = Width / 10 * 7;
+                splitContainer1.SplitterDistance = splitContainer1.Panel2MinSize;
+                splitContainer2.Panel2MinSize = Height / 5 * 3;
+                splitContainer2.SplitterDistance = splitContainer2.Panel2MinSize;
+            }
+            catch (Exception e)
+            {
+                SplitInit();
+            }
+
+
         }
         
-        static readonly BindingList<pathGridMember> pathGridMembers = new BindingList<pathGridMember>();
+        static internal BindingList<pathGridMember> pathGridMembers = new BindingList<pathGridMember>();
         
         public void Grid()
         {
             
             this.pathGrid.AllowUserToAddRows = false;
-            this.pathGrid.AllowUserToOrderColumns = true;
             this.pathGrid.AllowUserToOrderColumns = false;
-
-            //add sorting to BindingList later as this does not work
-            foreach (DataGridViewColumn col in this.pathGrid.Columns)
-            {
-                col.SortMode = DataGridViewColumnSortMode.Automatic;
-            }
 
             this.pathGrid.ColumnCount = 4;
             this.pathGrid.Columns[0].DataPropertyName = "SFolder";
@@ -82,26 +97,36 @@ namespace SyncAppGUI
 
            foreach(DataGridViewColumn c in pathGrid.Columns)
             {
-                c.AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                c.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
             }
-
+            pathGrid.Columns["Delete"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            pathGrid.AutoResizeColumns();
             
 
         }
         private void AddButton_Click(object sender, EventArgs e)
         {
+            
             if (Directory.Exists(textSource.Text) == false || Directory.Exists(textTarget.Text) == false) return;
             if (string.IsNullOrEmpty(textTarget.Text) && string.IsNullOrEmpty(textSource.Text)) ;
+            if (textSource.Text == textTarget.Text)
+            {
+                textError.BackColor = DefaultBackColor;
+                textError.ForeColor = Color.Red;
+                textError.Text = "The two folders are identical!";
+                return;
+            }
             else if(string.IsNullOrEmpty(textTarget.Text) || string.IsNullOrEmpty(textSource.Text))
             {
-                labelError.Text = "Select two folders!";
+                textError.Text = "Select two folders!";
             }
             else if ((pathGridMembers.Any(x => (x.Source == textSource.Text) && (x.Target == textTarget.Text)) == false) && Evaluation(textSource.Text) == true && Evaluation(textTarget.Text) == true)
             {
                 if (pathGridMembers.Any(x => (x.Source == textTarget.Text) && (x.Target == textSource.Text)))
                 {
-                    labelError.ForeColor = Color.Red;
-                    labelError.Text = "An identical folder pair is already being monitored. Set SyncType to \"Mirror\" if you wish to monitor both folders!";
+                    textError.BackColor = DefaultBackColor;
+                    textError.ForeColor = Color.Red;
+                    textError.Text = "An identical folder pair is already being monitored. Set SyncType to \"Mirror\" if you wish to monitor both folders!";
                 }
                 else
                 {
@@ -110,29 +135,41 @@ namespace SyncAppGUI
                     string t = "";
                     if (textSource.Text.EndsWith("\\"))
                     {
-                        s = textSource.Text.Substring(0, textSource.Text.Length - 2);
+                        if (textSource.Text.Length == 3); 
+                        else s = textSource.Text.Substring(0, textSource.Text.Length - 2);
                     }
-                    else if (textTarget.Text.EndsWith("\\"))
+                    if (textTarget.Text.EndsWith("\\"))
                     {
-                        t = textTarget.Text.Substring(0, textTarget.Text.Length - 2);
+                        if (textTarget.Text.Length == 3);
+                        else t = textTarget.Text.Substring(0, textTarget.Text.Length - 2);
                     }
-                    else
+                    else if(textTarget.Text.EndsWith("\\")==false&& textSource.Text.EndsWith("\\")==false)
                     {
                         s = textSource.Text;
                         t = textTarget.Text;
 
                         if (IsSubdirectory(s, t) || IsSubdirectory(t, s))
                         {
-                            labelError.Text = "One of the folders is a subfolder of the other one!";
+                            textError.BackColor = DefaultBackColor;
+                            textError.ForeColor = Color.Red;
+                            textError.Text = "One of the folders is a subfolder of the other one!";
 
                             return;
                         }
                         
                     }
 
+                    if (textTarget.Text.Length == 3 && textSource.Text.Length==3)
+                    {
+                        s = textSource.Text;
+                        t = textTarget.Text;
+                    }
+
                     pathGridMembers.Add(new pathGridMember(s, t));
                     pathGrid.Refresh();
-
+                    textError.Text = null;
+                    textSource.Text = null;
+                    textTarget.Text = null;
                 }
             }
         }
@@ -210,7 +247,7 @@ namespace SyncAppGUI
                 textSource.BackColor = Color.White;
                 textSource.ForeColor = Color.Black;
                 labelSource.Text = null;
-                labelError.Text = null;
+                textError.Text = null;
             }
             else if (Evaluation(textSource.Text) == false)
             {
@@ -243,7 +280,7 @@ namespace SyncAppGUI
                 labelTarget.Text = null;
                 textTarget.BackColor = Color.White;
                 textTarget.ForeColor = Color.Black;
-                labelError.Text = null;
+                textError.Text = null;
             }
             else if (Evaluation(textTarget.Text) == false)
             {
@@ -321,12 +358,15 @@ namespace SyncAppGUI
 
         private void ClearButton_Click(object sender, EventArgs e)
         {
-            textSource.Text = null;
-            textTarget.Text = null;
-            textSource.Focus();
-            textTarget.Focus();
-            textTarget.Focus();
-            swapButton.Focus();
+            if (pathGridMembers.Count != 0)
+            {
+                DialogResult dialogResult = MessageBox.Show("This will delete all folder pairs that are being monitored.\nDo you wish to continue?", "Load", MessageBoxButtons.YesNoCancel);
+                if (dialogResult == DialogResult.Yes)
+                {
+                    pathGridMembers.Clear();
+                    pathGrid.EndEdit();
+                }
+            }
         }
 
         private void syncNowButton_Click(object sender, EventArgs e)
@@ -389,13 +429,12 @@ namespace SyncAppGUI
                 }
             }
         }
-        public void Load(string path)
+        void Load(string path)
         {
-            
             using (StreamReader sr=new StreamReader(path))
             {
-                string line = "";
                 pathGridMembers.Clear();
+                string line = "";
                 while ((line = sr.ReadLine()) != null)
                 {
                     string[] arr = line.Split(';');
@@ -416,6 +455,7 @@ namespace SyncAppGUI
                     pathGridMembers.Last().AutoSync = Convert.ToBoolean(arr[4]);
                     
                 }
+                
             }
             
         }
@@ -444,6 +484,37 @@ namespace SyncAppGUI
         {
             templateForm temp = new templateForm();
             temp.Show();
+        }
+
+        private void Form1_Activated(object sender, EventArgs e)
+        {
+            pathGrid.DataSource = pathGridMembers;
+            pathGrid.EndEdit();
+            
+        }
+
+        private void PathGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void Form1_Resize(object sender, EventArgs e)
+        {
+            SplitInit();
+        }
+        private void bindingList_Changed(object sender, ListChangedEventArgs e)
+        {
+            if (pathGridMembers.Any(x => (x.SyncType == null || x.SyncType == "")))
+            {
+                textError.BackColor = DefaultBackColor;
+                textError.ForeColor = Color.Red;
+                textError.Text = "There are folder pairs with undefined SyncTypes! Those will not be monitored.";
+                syncNowButton.Enabled = false;
+            }
+            else
+            {
+                syncNowButton.Enabled = true;
+            }
         }
     }
     
