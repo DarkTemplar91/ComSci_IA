@@ -83,6 +83,7 @@
     <Compile Include="Form1.Designer.cs">
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Mirror.cs" />
     <Compile Include="pathGridMember.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -93,6 +94,7 @@
       <DependentUpon>settingForm.cs</DependentUpon>
     </Compile>
     <Compile Include="settings.cs" />
+    <Compile Include="syncNow.cs" />
     <Compile Include="templateForm.cs">
       <SubType>Form</SubType>
     </Compile>

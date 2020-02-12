@@ -52,22 +52,23 @@
             this.openFileDialog1 = new System.Windows.Forms.OpenFileDialog();
             this.buttonOpen = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
-            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
-            this.labelTarget = new System.Windows.Forms.Label();
             this.tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            this.textError = new System.Windows.Forms.TextBox();
+            this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.syncNowButton = new System.Windows.Forms.Button();
+            this.textError = new System.Windows.Forms.TextBox();
+            this.labelTarget = new System.Windows.Forms.Label();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).BeginInit();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
             this.splitContainer1.SuspendLayout();
+            this.tableLayoutPanel1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
             this.splitContainer2.Panel2.SuspendLayout();
             this.splitContainer2.SuspendLayout();
-            this.tableLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
             // pathGrid
@@ -78,14 +79,16 @@
             this.pathGrid.Name = "pathGrid";
             this.pathGrid.Size = new System.Drawing.Size(526, 205);
             this.pathGrid.TabIndex = 0;
-            this.pathGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.PathGrid_CellContentClick);
+            this.pathGrid.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.pathGrid_OnClick);
+            this.pathGrid.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.pathGrid_CellValueChanged);
+            this.pathGrid.Resize += new System.EventHandler(this.PathGrid_Resize);
             // 
             // addButton
             // 
             this.addButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.addButton.Location = new System.Drawing.Point(234, 68);
+            this.addButton.Location = new System.Drawing.Point(220, 68);
             this.addButton.Name = "addButton";
-            this.addButton.Size = new System.Drawing.Size(55, 45);
+            this.addButton.Size = new System.Drawing.Size(81, 45);
             this.addButton.TabIndex = 1;
             this.addButton.Text = "Add";
             this.addButton.UseVisualStyleBackColor = true;
@@ -280,6 +283,23 @@
             this.splitContainer1.SplitterDistance = 266;
             this.splitContainer1.TabIndex = 17;
             // 
+            // tableLayoutPanel1
+            // 
+            this.tableLayoutPanel1.ColumnCount = 1;
+            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tableLayoutPanel1.Controls.Add(this.clearButton, 0, 2);
+            this.tableLayoutPanel1.Controls.Add(this.buttonSave, 0, 1);
+            this.tableLayoutPanel1.Controls.Add(this.buttonOpen, 0, 0);
+            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
+            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
+            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
+            this.tableLayoutPanel1.RowCount = 3;
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
+            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
+            this.tableLayoutPanel1.Size = new System.Drawing.Size(262, 265);
+            this.tableLayoutPanel1.TabIndex = 11;
+            // 
             // splitContainer2
             // 
             this.splitContainer2.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
@@ -308,32 +328,16 @@
             this.splitContainer2.SplitterDistance = 213;
             this.splitContainer2.TabIndex = 18;
             // 
-            // labelTarget
+            // syncNowButton
             // 
-            this.labelTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.labelTarget.AutoSize = true;
-            this.labelTarget.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F);
-            this.labelTarget.Location = new System.Drawing.Point(318, 78);
-            this.labelTarget.Name = "labelTarget";
-            this.labelTarget.Size = new System.Drawing.Size(0, 22);
-            this.labelTarget.TabIndex = 10;
-            // 
-            // tableLayoutPanel1
-            // 
-            this.tableLayoutPanel1.ColumnCount = 1;
-            this.tableLayoutPanel1.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tableLayoutPanel1.Controls.Add(this.clearButton, 0, 2);
-            this.tableLayoutPanel1.Controls.Add(this.buttonSave, 0, 1);
-            this.tableLayoutPanel1.Controls.Add(this.buttonOpen, 0, 0);
-            this.tableLayoutPanel1.Dock = System.Windows.Forms.DockStyle.Top;
-            this.tableLayoutPanel1.Location = new System.Drawing.Point(0, 0);
-            this.tableLayoutPanel1.Name = "tableLayoutPanel1";
-            this.tableLayoutPanel1.RowCount = 3;
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33334F));
-            this.tableLayoutPanel1.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 33.33333F));
-            this.tableLayoutPanel1.Size = new System.Drawing.Size(262, 265);
-            this.tableLayoutPanel1.TabIndex = 11;
+            this.syncNowButton.Dock = System.Windows.Forms.DockStyle.Bottom;
+            this.syncNowButton.Location = new System.Drawing.Point(0, 187);
+            this.syncNowButton.Name = "syncNowButton";
+            this.syncNowButton.Size = new System.Drawing.Size(526, 22);
+            this.syncNowButton.TabIndex = 13;
+            this.syncNowButton.Text = "SyncNow";
+            this.syncNowButton.UseVisualStyleBackColor = true;
+            this.syncNowButton.Click += new System.EventHandler(this.syncNowButton_Click);
             // 
             // textError
             // 
@@ -347,15 +351,20 @@
             this.textError.TabIndex = 12;
             this.textError.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
-            // syncNowButton
+            // labelTarget
             // 
-            this.syncNowButton.Anchor = System.Windows.Forms.AnchorStyles.Top;
-            this.syncNowButton.Location = new System.Drawing.Point(220, 119);
-            this.syncNowButton.Name = "syncNowButton";
-            this.syncNowButton.Size = new System.Drawing.Size(75, 34);
-            this.syncNowButton.TabIndex = 13;
-            this.syncNowButton.Text = "SyncNow";
-            this.syncNowButton.UseVisualStyleBackColor = true;
+            this.labelTarget.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.labelTarget.AutoSize = true;
+            this.labelTarget.Font = new System.Drawing.Font("Microsoft Sans Serif", 13F);
+            this.labelTarget.Location = new System.Drawing.Point(318, 78);
+            this.labelTarget.Name = "labelTarget";
+            this.labelTarget.Size = new System.Drawing.Size(0, 22);
+            this.labelTarget.TabIndex = 10;
+            // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.BackgroundWorker1_DoWork);
+            this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.BackgroundWorker1_RunWorkerCompleted);
             // 
             // Form1
             // 
@@ -365,7 +374,7 @@
             this.Controls.Add(this.splitContainer1);
             this.Controls.Add(this.menuStrip1);
             this.Name = "Form1";
-            this.Text = "Form1";
+            this.Text = "AutoSync";
             this.Activated += new System.EventHandler(this.Form1_Activated);
             this.Resize += new System.EventHandler(this.Form1_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pathGrid)).EndInit();
@@ -375,12 +384,12 @@
             this.splitContainer1.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).EndInit();
             this.splitContainer1.ResumeLayout(false);
+            this.tableLayoutPanel1.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel1.PerformLayout();
             this.splitContainer2.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).EndInit();
             this.splitContainer2.ResumeLayout(false);
-            this.tableLayoutPanel1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -416,6 +425,7 @@
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
         private System.Windows.Forms.TextBox textError;
         private System.Windows.Forms.Button syncNowButton;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

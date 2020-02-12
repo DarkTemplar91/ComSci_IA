@@ -17,6 +17,7 @@ namespace SyncAppGUI
         public Form1()
         {
             InitializeComponent();
+            this.MinimumSize = new Size(816, 489);
             // progressBar1.Dock = DockStyle.Bottom;
             //progressBar1.Enabled = false;
             SplitInit();
@@ -47,7 +48,7 @@ namespace SyncAppGUI
             {
                 splitContainer1.Panel2MinSize = Width / 10 * 7;
                 splitContainer1.SplitterDistance = splitContainer1.Panel2MinSize;
-                splitContainer2.Panel2MinSize = Height / 5 * 3;
+                splitContainer2.Panel2MinSize = (Height / 10 * 6)-10;
                 splitContainer2.SplitterDistance = splitContainer2.Panel2MinSize;
             }
             catch (Exception e)
@@ -65,6 +66,7 @@ namespace SyncAppGUI
             
             this.pathGrid.AllowUserToAddRows = false;
             this.pathGrid.AllowUserToOrderColumns = false;
+            this.pathGrid.AllowUserToResizeColumns = false;
 
             this.pathGrid.ColumnCount = 4;
             this.pathGrid.Columns[0].DataPropertyName = "SFolder";
@@ -94,15 +96,26 @@ namespace SyncAppGUI
                 FlatStyle = FlatStyle.Standard
             };
             this.pathGrid.Columns.Add(buttonColumn);
+            RefresResizableColumns(pathGrid);
 
-           foreach(DataGridViewColumn c in pathGrid.Columns)
+
+        }
+        public void RefresResizableColumns(DataGridView grid)
+        {
+            for(int n = 0; n < grid.ColumnCount; n++)
             {
-                c.AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+                grid.Columns[n].AutoSizeMode = DataGridViewAutoSizeColumnMode.Fill;
             }
-            pathGrid.Columns["Delete"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
-            pathGrid.AutoResizeColumns();
-            
-
+            grid.Columns["Delete"].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+            grid.Refresh();
+            for(int n = 0; n < grid.ColumnCount; n++)
+            {
+                int colw = grid.Columns[n].Width;
+                grid.Columns[n].AutoSizeMode = DataGridViewAutoSizeColumnMode.None;
+                grid.Columns[n].Width = colw;
+            }
+            grid.AllowUserToResizeColumns = true;
+            grid.Refresh();
         }
         private void AddButton_Click(object sender, EventArgs e)
         {
@@ -172,6 +185,10 @@ namespace SyncAppGUI
                     textTarget.Text = null;
                 }
             }
+            pathGridMember temp = new pathGridMember("", "");
+            pathGridMembers.Add(temp);
+            pathGridMembers.Remove(temp);
+            
         }
         private void BrowseSource_Click(object sender, EventArgs e)
         {
@@ -307,28 +324,30 @@ namespace SyncAppGUI
 
         private void pathGrid_CellValueChanged(object sender, DataGridViewCellEventArgs e)
         {
-
-            if (e.ColumnIndex == pathGrid.Columns["AutoSync"].Index)
+            if (e.RowIndex > -1)
             {
-                DataGridViewCheckBoxCell ch1 = (DataGridViewCheckBoxCell)pathGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
-
-                if (ch1.Value == null) ch1.Value = false;
-
-                int index=pathGridMembers.IndexOf(pathGridMembers.First(x => (x.Source == (string)pathGrid.Rows[e.RowIndex].Cells["Source path"].Value) && (x.Target == (string)pathGrid.Rows[e.RowIndex].Cells["Target path"].Value)));
-                switch (ch1.Value.ToString())
+                if (e.ColumnIndex == pathGrid.Columns["AutoSync"].Index)
                 {
-                    case "True":
-                        
-                        pathGridMembers[index].AutoSync = false;
-                        ch1.Value = false;
-                        break;
-                    case "False":
-                        pathGridMembers[index].AutoSync = true;
-                        ch1.Value = true;
-                        break;
+                    DataGridViewCheckBoxCell ch1 = (DataGridViewCheckBoxCell)pathGrid.Rows[e.RowIndex].Cells[e.ColumnIndex];
+
+                    if (ch1.Value == null) ch1.Value = false;
+
+                    int index = pathGridMembers.IndexOf(pathGridMembers.First(x => (x.Source == (string)pathGrid.Rows[e.RowIndex].Cells["Source path"].Value) && (x.Target == (string)pathGrid.Rows[e.RowIndex].Cells["Target path"].Value)));
+                    switch (ch1.Value.ToString())
+                    {
+                        case "True":
+
+                            pathGridMembers[index].AutoSync = false;
+                            ch1.Value = false;
+                            break;
+                        case "False":
+                            pathGridMembers[index].AutoSync = true;
+                            ch1.Value = true;
+                            break;
+                    }
                 }
+                pathGrid.EndEdit();
             }
-            pathGrid.EndEdit();
         }
         private void pathGrid_DirtyCell(object sender, EventArgs e)
         {
@@ -340,10 +359,12 @@ namespace SyncAppGUI
                 
                 pathGridMembers[index].SyncType=(string)pathGrid.CurrentCell.Value;
             }
+            pathGridMember temp = new pathGridMember("", "");
+            pathGridMembers.Add(temp);
+            pathGridMembers.Remove(temp);
         }
         private void pathGrid_OnClick(object sender, DataGridViewCellEventArgs e)
         {
-            
             if (e.RowIndex>=0)
             {
                 if (e.ColumnIndex == pathGrid.Rows[e.RowIndex].Cells["Delete"].ColumnIndex)
@@ -351,9 +372,14 @@ namespace SyncAppGUI
                     int index = pathGridMembers.IndexOf(pathGridMembers.First(x => (x.Source == (string)pathGrid.Rows[e.RowIndex].Cells["Source path"].Value) && (x.Target == (string)pathGrid.Rows[e.RowIndex].Cells["Target path"].Value)));
                     pathGridMembers.Remove(pathGridMembers[index]);
                     pathGrid.EndEdit();
+                    
 
                 }
             }
+            pathGridMember temp = new pathGridMember("", "");
+            pathGridMembers.Add(temp);
+            pathGridMembers.Remove(temp);
+
         }
 
         private void ClearButton_Click(object sender, EventArgs e)
@@ -371,7 +397,11 @@ namespace SyncAppGUI
 
         private void syncNowButton_Click(object sender, EventArgs e)
         {
-
+            backgroundWorker1.WorkerReportsProgress = false;
+            syncNowButton.Enabled = false;
+            textError.Visible = false;
+            backgroundWorker1.RunWorkerAsync(pathGrid);
+            
         }
 
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -493,14 +523,10 @@ namespace SyncAppGUI
             
         }
 
-        private void PathGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
         private void Form1_Resize(object sender, EventArgs e)
         {
             SplitInit();
+            RefresResizableColumns(pathGrid);
         }
         private void bindingList_Changed(object sender, ListChangedEventArgs e)
         {
@@ -514,7 +540,36 @@ namespace SyncAppGUI
             else
             {
                 syncNowButton.Enabled = true;
+                textError.Text = null;
             }
+        }
+
+        
+
+
+        private void PathGrid_Resize(object sender, EventArgs e)
+        {
+            RefresResizableColumns(pathGrid);
+        }
+
+        private void BackgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+        {
+            backgroundWorker1 = sender as BackgroundWorker;
+
+            syncNow.Sync(pathGridMembers,backgroundWorker1,e);
+        }
+
+        private void BackgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+           
+            syncNowButton.Enabled = true;
+            textError.Visible = true;
+            backgroundWorker1.Dispose();
+        }
+
+        private void SyncNowButton_Click(object sender, EventArgs e)
+        {
+            backgroundWorker1.RunWorkerAsync();
         }
     }
     
