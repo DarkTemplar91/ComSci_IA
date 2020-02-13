@@ -8,7 +8,7 @@ using System.Threading;
 using System.Diagnostics;
 using System.Security.AccessControl;
 
-namespace Syncs
+namespace SyncAppGUI
 {
     class FileWatcher
     {

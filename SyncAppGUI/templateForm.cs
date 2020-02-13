@@ -142,6 +142,7 @@ namespace SyncAppGUI
                     }
                 }
                 Form1.pathGridMembers = pm;
+                
                 Close();
             }
         }

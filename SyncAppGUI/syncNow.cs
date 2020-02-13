@@ -11,6 +11,28 @@ namespace SyncAppGUI
 {
     class syncNow
     {
+        public static void MirrorList(BindingList<pathGridMember> list)
+        {
+            BindingList<pathGridMember> temp = list;
+            for (int n = 0; n < temp.Count; n++)
+            {
+                if (temp[n].SyncType != null || temp[n].SyncType != "")
+                {
+                    string type = temp[n].SyncType;
+                    string source = temp[n].Source;
+                    string target = temp[n].Target;
+                    if (type == pathGridMember.syncTypes.Mirror.ToString())
+                    {
+                        MirrorBoth(source, target);
+                    }
+                    else if (type == pathGridMember.syncTypes.Constructive.ToString() || type == pathGridMember.syncTypes.Destructive.ToString())
+                    {
+
+                        MirrorDir(source, target);
+                    }
+                }
+            }
+        }
         static void MirrorDir(string d1Path, string d2Path)
         {
 
@@ -118,6 +140,41 @@ namespace SyncAppGUI
                 return true;
             }
             else return false;
+        }
+        public static bool DirEqual(string p1, string p2)
+        {
+            foreach (string path in Directory.GetDirectories(p1, "*", SearchOption.AllDirectories))
+            {
+                if (!Directory.Exists(path.Replace(p1, p2)))
+                {
+                    return false;
+                }
+            }
+            foreach (string path in Directory.GetFiles(p1, "*", SearchOption.AllDirectories))
+            {
+                if (!File.Exists(path.Replace(p1, p2)))
+                {
+                    return false;
+                }
+                else
+                {
+                    try
+                    {
+
+
+                        if (FileEquals(path, path.Replace(p1, p2)) == false)
+                        {
+                            return false;
+                        }
+                    }
+                    catch (IOException)
+                    {
+
+                    }
+                }
+
+            }
+            return true;
         }
     }
 }

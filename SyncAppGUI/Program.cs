@@ -3,6 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO.MemoryMappedFiles;
+using System.ComponentModel;
+using System.Threading;
+using System.IO;
+using System.Text;
 
 namespace SyncAppGUI
 {
@@ -15,9 +20,13 @@ namespace SyncAppGUI
         [STAThread]
         static void Main()
         {
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
+            Task.Run(() => FileWatcher.DeletePaths());
+        
+            
         }
     }
 }

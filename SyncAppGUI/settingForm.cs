@@ -187,9 +187,11 @@ namespace SyncAppGUI
                 settings.syncType = settings.SyncTypes.TimeInterval.ToString();
                 settings.interval = dateTimePicker1.Value.Hour * 60 * 60 * 1000 + dateTimePicker1.Value.Minute * 60 * 1000;
                 settings.intervalDate = dateTimePicker1.Value;
+                
             }
             else
             {
+
                 settings.syncType = settings.SyncTypes.SetTimes.ToString();
                 settings.dateTimes = syncDateTime.ConvertAll(x => DateTime.ParseExact(x, "HH:mm", null));
                 
