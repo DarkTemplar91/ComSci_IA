@@ -7,18 +7,18 @@ using System.IO;
 
 namespace SyncAppGUI
 {
+    //Kind of redundant with PathGridMember class
     
-    class DataHandling
+    struct DataHandling
     {
         
         internal string sourceDirectory;
         string directoryName;
-        double size;
+        
 
         internal string targetDirectory;
         string targetName;
-        double targetSize;
-
+        
        
        public DataHandling(string path, string target)
         {

@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.ServiceModel;
+using System.IO;
 
 namespace SyncAppGUI
 {
+    
     public class pathGridMember
     {
         
@@ -15,24 +17,21 @@ namespace SyncAppGUI
         string targetPath;
         string sourceFolder;
         string targetFolder;
-        
+        bool autoSync;
+        string sync_Type;
+
         public string Source => sourcePath;
         public string Target => targetPath;
-        
-        public string SFolder => sourceFolder;
-        
-        public string TFolder => targetFolder;
+        public string SourceDirectory => sourceFolder;
+        public string TargetDirectory => targetFolder;
+        public string SyncType { get { return sync_Type; } set { sync_Type = value; } }
 
-        bool autoSync;
         public enum syncTypes
         {
             Mirror,
             Constructive,
             Destructive
         }
-        string sync_Type;
-        public string SyncType { get { return sync_Type; } set { sync_Type = value; } }
-
         public bool AutoSync
         {
             get { return autoSync; }
@@ -43,21 +42,14 @@ namespace SyncAppGUI
             targetPath = target;
             sourcePath = source;
 
-            if (target.Length != 3)
+            if (source != "" && target != "" && source != null && target != null)
             {
-                targetFolder = Trim(target);
+                DirectoryInfo sourceInfo = new DirectoryInfo(sourcePath);
+                DirectoryInfo targetInfo = new DirectoryInfo(targetPath);
+
+                sourceFolder = sourceInfo.Name;
+                targetFolder = targetInfo.Name;
             }
-            else targetFolder = target;
-            if (source.Length != 3)
-            {
-                sourceFolder = Trim(source);
-            }
-            else sourceFolder = source;
-        }
-        private static string Trim(string source)
-        {
-            string[] temp = source.Split('\\');
-            return temp[temp.Length - 1];
         }
     }
 }

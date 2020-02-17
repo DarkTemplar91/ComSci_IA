@@ -16,7 +16,9 @@ namespace SyncAppGUI
         public templateForm()
         {
             InitializeComponent();
+            //Paths of the saved templates that are visible in the form
             loadedPaths = new List<string>();
+            //Sets the attributes of tabControl1 so it fills the page and can be resized
             tabControl1.Dock = Dock;
             tabControl1.Dock = DockStyle.Fill;
             tabControl1.Anchor = AnchorStyles.Top|AnchorStyles.Bottom|AnchorStyles.Left|AnchorStyles.Right;
@@ -24,11 +26,15 @@ namespace SyncAppGUI
             tabControl1.Width = Width - 20;
             tabControl1.Height = Height/5*4;
             tabControl1.Location = new Point(0, 0);
+            //Loads in templates from loadedPaths
             LoadTemplate();
+            //Adds buttons to form
             delete.Text = "Delete";
             load.Text = "Load";
+            //Events created for buttons
             load.Click += new EventHandler(load_Click);
             delete.Click += new EventHandler(delete_Click);
+            //Atributes
             load.Location = new Point(10, this.Height - 100);
             delete.Location = new Point(110, this.Height - 100);
             load.Height += 20;

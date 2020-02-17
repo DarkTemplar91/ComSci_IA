@@ -8,9 +8,8 @@ namespace SyncAppGUI
     public class FileWatcher
     {
         //Objects that will do the monitoring process
-        private DataHandling DataMember;
-
-        private DataHandling DataMember_backward;
+        private pathGridMember DataMember;
+        private pathGridMember DataMember_backward;
         private FileSystemWatcher watcher;
         private FileSystemWatcher watcher_backward;
 
@@ -23,34 +22,35 @@ namespace SyncAppGUI
         public string Target => target;
         public string WatcherConnection1 => WatcherConnection;
 
-        //the use of this list prevents the bug that FileSystemWatcher raises an event twice
+        //the use of this list prevents the bug that FileSystemWatcher raises an event twice (from StackOverFlow)
         private List<string> _changedFiles = new List<string>();
 
+        //Stores files to be deleted and the exceptions in the case of Mirror synchronization.
         private static Queue<string> deletePath = new Queue<string>();
         private static List<string> exceptionPath = new List<string>();
 
         //Initializes the watcher(s)
-        public void CreateWatcher(string u_path, string u_target, string connection)
+        public FileWatcher(string u_path, string u_target, string connection)
         {
             path = u_path;
             target = u_target;
             WatcherConnection = connection;
 
-            DataMember = new DataHandling(path, target);
+            DataMember = new pathGridMember(path, target);
 
             if (connection == "Mirror")
             {
-                DataMember_backward = new DataHandling(target, path);
+                DataMember_backward = new pathGridMember(target, path);
                 watcher_backward = new FileSystemWatcher();
 
-                watcher_backward.Path = DataMember_backward.sourceDirectory;
+                watcher_backward.Path = DataMember_backward.Source;
                 watcher_backward.NotifyFilter = NotifyFilters.LastWrite
                                               | NotifyFilters.FileName
                                               | NotifyFilters.DirectoryName
                                               | NotifyFilters.Size;
                 watcher_backward.IncludeSubdirectories = true;
 
-                watcher_backward.Deleted += OnDeleted;
+                watcher_backward.Deleted += OnMirrorDeleted;
                 watcher_backward.Changed += OnMirror;
                 watcher_backward.Created += OnMirror;
                 watcher_backward.Renamed += OnMirrorRenamed;
@@ -58,7 +58,7 @@ namespace SyncAppGUI
 
             watcher = new FileSystemWatcher();
 
-            watcher.Path = DataMember.sourceDirectory;
+            watcher.Path = DataMember.Source;
 
             watcher.NotifyFilter = NotifyFilters.LastWrite
                                  | NotifyFilters.FileName
@@ -121,6 +121,7 @@ namespace SyncAppGUI
             }
         }
 
+        //EventHandlers for changes in the directory
         private void OnChanged(object source, FileSystemEventArgs e)
         {
             lock (_changedFiles)
@@ -135,7 +136,6 @@ namespace SyncAppGUI
 
             if (e.FullPath.EndsWith(".tmp")) return;
 
-            FileInfo file = new FileInfo(e.FullPath);
             FileAttributes attr = File.GetAttributes(e.FullPath);
             string newPath = e.FullPath.Replace(e.FullPath, target);
 
@@ -170,7 +170,7 @@ namespace SyncAppGUI
                 {
                     try
                     {
-                        Write(e.FullPath, e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
+                        Write(e.FullPath, e.FullPath.Replace(DataMember.SourceDirectory, DataMember.TargetDirectory));
                         break;
                     }
                     catch (Exception)
@@ -189,8 +189,7 @@ namespace SyncAppGUI
                 }
             };
             timer.Start();
-        }
-
+        }        
         private void OnDeleted(object source, FileSystemEventArgs e)
         {
             lock (_changedFiles)
@@ -203,11 +202,11 @@ namespace SyncAppGUI
             }
             if (source.Equals(watcher))
             {
-                deletePath.Enqueue(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
+                deletePath.Enqueue(e.FullPath.Replace(DataMember.SourceDirectory, DataMember.TargetDirectory));
             }
             else if (source.Equals(watcher_backward))
             {
-                deletePath.Enqueue(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
+                deletePath.Enqueue(e.FullPath.Replace(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory));
             }
 
             System.Timers.Timer timer = new System.Timers.Timer(1000) { AutoReset = false };
@@ -220,7 +219,6 @@ namespace SyncAppGUI
             };
             timer.Start();
         }
-
         private void OnRenamed(object source, RenamedEventArgs e)
         {
             lock (_changedFiles)
@@ -235,7 +233,7 @@ namespace SyncAppGUI
             string[] oldpath = e.OldFullPath.Split('\\');
             string oldname = oldpath[oldpath.Length - 1];
 
-            File.Delete(DataMember.targetDirectory + oldname);
+            File.Delete(DataMember.TargetDirectory + oldname);
             FileAttributes attr = File.GetAttributes(e.FullPath);
 
             if ((attr & FileAttributes.Directory) == FileAttributes.Directory)
@@ -272,7 +270,7 @@ namespace SyncAppGUI
             {
                 try
                 {
-                    Directory.Move(e.OldFullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory), e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
+                    Directory.Move(e.OldFullPath.Replace(DataMember.SourceDirectory, DataMember.TargetDirectory), e.FullPath.Replace(DataMember.SourceDirectory, DataMember.TargetDirectory));
                 }
                 catch (DirectoryNotFoundException)
                 {
@@ -286,7 +284,7 @@ namespace SyncAppGUI
             {
                 try
                 {
-                    Directory.Move(e.OldFullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory), e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
+                    Directory.Move(e.OldFullPath.Replace(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory), e.FullPath.Replace(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory));
                 }
                 catch (DirectoryNotFoundException)
                 {
@@ -307,7 +305,6 @@ namespace SyncAppGUI
             };
             timer.Start();
         }
-
         private void OnMirror(object source, FileSystemEventArgs e)
         {
             lock (_changedFiles)
@@ -326,9 +323,10 @@ namespace SyncAppGUI
                     OnChanged(source, e);
                 }
 
-                if (syncNow.DirEqual(DataMember.sourceDirectory, DataMember.targetDirectory) == false || syncNow.DirEqual(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory) == false)
+                if (syncNow.DirEqual(DataMember.SourceDirectory, DataMember.TargetDirectory) == false ||
+                    syncNow.DirEqual(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory) == false)
                 {
-                    syncNow.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
+                    syncNow.MirrorBoth(DataMember.SourceDirectory, DataMember.TargetDirectory);
                 }
                 watcher_backward.EnableRaisingEvents = true;
             }
@@ -340,9 +338,10 @@ namespace SyncAppGUI
                     OnChanged(source, e);
                 }
 
-                if (syncNow.DirEqual(DataMember.sourceDirectory, DataMember.targetDirectory) == false || syncNow.DirEqual(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory) == false)
+                if (syncNow.DirEqual(DataMember.SourceDirectory, DataMember.TargetDirectory) == false ||
+                    syncNow.DirEqual(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory) == false)
                 {
-                    syncNow.MirrorBoth(DataMember.sourceDirectory, DataMember.targetDirectory);
+                    syncNow.MirrorBoth(DataMember.SourceDirectory, DataMember.TargetDirectory);
                 }
                 watcher.EnableRaisingEvents = true;
             }
@@ -356,8 +355,6 @@ namespace SyncAppGUI
             };
             timer.Start();
         }
-
-        //stores paths to be deleted
         private void OnMirrorDeleted(object source, FileSystemEventArgs e)
         {
             lock (_changedFiles)
@@ -372,13 +369,13 @@ namespace SyncAppGUI
 
             if (source.Equals(watcher) && exceptionPath.Contains(e.FullPath) == false)
             {
-                deletePath.Enqueue(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
-                exceptionPath.Add(e.FullPath.Replace(DataMember.sourceDirectory, DataMember.targetDirectory));
+                deletePath.Enqueue(e.FullPath.Replace(DataMember.SourceDirectory, DataMember.TargetDirectory));
+                exceptionPath.Add(e.FullPath.Replace(DataMember.SourceDirectory, DataMember.TargetDirectory));
             }
             else if (source.Equals(watcher_backward) && exceptionPath.Contains(e.FullPath) == false)
             {
-                deletePath.Enqueue(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
-                exceptionPath.Add(e.FullPath.Replace(DataMember_backward.sourceDirectory, DataMember_backward.targetDirectory));
+                deletePath.Enqueue(e.FullPath.Replace(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory));
+                exceptionPath.Add(e.FullPath.Replace(DataMember_backward.SourceDirectory, DataMember_backward.TargetDirectory));
             }
             else
             {
@@ -401,8 +398,6 @@ namespace SyncAppGUI
         {
             do
             {
-                //Prevent paths to be enqued from another thread while deleting
-
                 while (deletePath.Count != 0)
                 {
                     string path = deletePath.Peek();

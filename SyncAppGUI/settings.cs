@@ -7,7 +7,7 @@ using System.IO;
 
 namespace SyncAppGUI
 {
-    class settings
+    struct settings
     {
         public static string syncType;
         public enum SyncTypes
@@ -15,7 +15,7 @@ namespace SyncAppGUI
             TimeInterval,
             SetTimes
         }
-        public static int interval;
+        public static int interval=1;
         public static DateTime intervalDate;
         public static List<DateTime> dateTimes;
         public static readonly string resetSave= Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)+"\\SyncApp\\";

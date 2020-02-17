@@ -15,26 +15,32 @@ namespace SyncAppGUI
 {
     public partial class Form1 : Form
     {
+        static bool startUp = true;
         public Form1()
         {
 
             InitializeComponent();
-            this.MinimumSize = new Size(816, 489);
-            // progressBar1.Dock = DockStyle.Bottom;
-            //progressBar1.Enabled = false;
-            SplitInit();
+
+            //Sets minimum size of the main form so all controls are visible
+            this.MinimumSize = new Size(820, 490);
+            this.Icon = new Icon("icon.ico");
             this.Name = "AutoSyncApp";
+
+            SplitInit();
+            
             pathGrid.AutoGenerateColumns = false;
             Grid();
             pathGrid.CurrentCellDirtyStateChanged += new EventHandler(pathGrid_DirtyCell);
             pathGrid.CellClick += new DataGridViewCellEventHandler(pathGrid_OnClick);
             pathGrid.DataSource = pathGridMembers;
+
             toolTip1.SetToolTip(addButton, "Add new folder pair");
             toolTip1.SetToolTip(swapButton, "Swap the two texts");
             toolTip1.SetToolTip(browseSource, "Select the source folder");
             toolTip1.SetToolTip(browseTarget, "Select the target folder");
             toolTip1.SetToolTip(textSource, textSource.Text);
             toolTip1.SetToolTip(textTarget, textTarget.Text);
+
             saveFileDialog1.Filter = "Text Files (.txt)| *.txt|Comma Seperated Values File (.csv)|*.csv";
             saveFileDialog1.DefaultExt = "*.csv";
             openFileDialog1.Filter = "Text Files (.txt)| *.txt|Comma Seperated Values File (.csv)|*.csv";
@@ -42,31 +48,25 @@ namespace SyncAppGUI
 
             pathGridMembers.ListChanged += new ListChangedEventHandler(bindingList_Changed);
             timer1 = new System.Windows.Forms.Timer();
+            timer1.Tick += new EventHandler(Timer1_Tick);
+
+            notifyIcon1.Text = "SyncApp";
+            notifyIcon1.BalloonTipText = "Sync App minimized";
+            notifyIcon1.BalloonTipTitle = "Sync App";
+            notifyIcon1.Icon = new Icon("icon.ico");
+
             setupTimer();
             passWatcher();
             timer1.Start();
+            startUp = false;
 
 
         }
-        public void SplitInit()
-        {
-            try
-            {
-                splitContainer1.Panel2MinSize = Width / 10 * 7;
-                splitContainer1.SplitterDistance = splitContainer1.Panel2MinSize;
-                splitContainer2.Panel2MinSize = (Height / 10 * 6) - 10;
-                splitContainer2.SplitterDistance = splitContainer2.Panel2MinSize;
-            }
-            catch (Exception e)
-            {
-                SplitInit();
-            }
-
-
-        }
-
+        //Stores the data to be loaded into the DataGridView
         static public BindingList<pathGridMember> pathGridMembers = new BindingList<pathGridMember>();
+        //List os FileWatcher objects that monitor the directories
         static List<FileWatcher> fileWatchers = new List<FileWatcher>();
+        //Timer for interval synchroniztion
         static System.Windows.Forms.Timer timer1=new System.Windows.Forms.Timer();
         public void Grid()
         {
@@ -124,11 +124,221 @@ namespace SyncAppGUI
             grid.AllowUserToResizeColumns = true;
             grid.Refresh();
         }
+
+        //Checks if path input is valid using RegularExpressions
+        private bool Evaluation(string source)
+        {
+            Regex r = new Regex(@"^(([a-zA-Z]\:)|(\\))(\\{1}|((\\{1})[^\\]([^/:*?<>""|]*))+)$");
+            if (string.IsNullOrWhiteSpace(source)) return false;
+            if (r.IsMatch(source)) return true;
+            else return false;
+        }
+        //Saves data from DataGridView to file
+        public void Save(string path)
+        {
+            //create new StreamWriter object to write.
+            //Automatically discarded after using block end
+            using (StreamWriter sr = new StreamWriter(path.Substring(0, path.Length - 4) + "_grid" +
+                path.Substring(path.Length - 4)))
+            {
+                for (int n = 0; n < pathGrid.Rows.Count; n++)
+                {
+                    string row = pathGridMembers[n].SourceDirectory + ";" + pathGridMembers[n].Source +
+                        ";" + pathGridMembers[n].Target + ";" + pathGridMembers[n].TargetDirectory + ";" +
+                        pathGridMembers[n].AutoSync + ";" + pathGridMembers[n].SyncType + ";";
+                    sr.WriteLine(row);
+                }
+            }
+        }
+        //Reads in data and loads it to DataGridView
+        void LoadDGV(string path)
+        {
+            using (StreamReader sr = new StreamReader(path))
+            {
+                pathGridMembers.Clear();
+                string line = "";
+                while ((line = sr.ReadLine()) != null)
+                {
+                    string[] arr = line.Split(';');
+                    pathGridMembers.Add(new pathGridMember(arr[1], arr[2]));
+                    if (arr[3] == pathGridMember.syncTypes.Constructive.ToString())
+                    {
+                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Constructive.ToString();
+                    }
+                    else if (arr[3] == pathGridMember.syncTypes.Destructive.ToString())
+                    {
+                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Destructive.ToString();
+                    }
+                    else if (arr[3] == null) ;
+                    else
+                    {
+                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Mirror.ToString();
+                    }
+                    pathGridMembers.Last().AutoSync = Convert.ToBoolean(arr[4]);
+
+                }
+
+            }
+
+        }
+        //Checks if the two directories are subdirectories of each other or not
+        public static bool IsSubdirectory(string parentDir, string subDir)
+        {
+
+            string p1 = parentDir;
+            string p2 = subDir;
+            DirectoryInfo di1 = new DirectoryInfo(p1);
+            DirectoryInfo di2 = new DirectoryInfo(p2);
+            bool isParent = false;
+            while (di2.Parent != null)
+            {
+                if (di2.Parent.FullName == di1.FullName)
+                {
+                    isParent = true;
+                    break;
+                }
+                else di2 = di2.Parent;
+            }
+            return isParent;
+        }
+        private void setupTimer()
+        {
+            if (settings.interval != 0)
+            {
+                timer1.Interval = settings.interval;
+                timer1.Start();
+            }
+            else
+            {
+                timer1.Interval = 6000;
+                timer1.Start();
+            }
+        }
+        //Display Ballon with information
+        private void showBalloon(string title, string body)
+        {
+            using (NotifyIcon notifyIcon = new NotifyIcon())
+            {
+                notifyIcon.Visible = true;
+
+                if (title != null)
+                {
+                    notifyIcon.BalloonTipTitle = title;
+                }
+
+                if (body != null)
+                {
+                    notifyIcon.BalloonTipText = body;
+                }
+                notifyIcon.Icon = SystemIcons.Application;
+                notifyIcon.ShowBalloonTip(3000);
+            }
+        }
+        //Makes changes in fileWatchers list, add, removes object
+        public void passWatcher()
+        {
+            //Checks if there is a FileWatcher object in the list for which the
+            //automatic synchronization has been turned off
+            for (int n = 0; n < pathGridMembers.Count; n++)
+            {
+                //BindingList that populates the DataGridView
+                if (pathGridMembers[n].AutoSync == false)
+                {
+                    try
+                    {
+                        if (fileWatchers.Count > 0)
+                        {
+                            //Checks if there are identical items in the two lists. If there are
+                            //they should be removed as AutoSync is no longer turned on.
+                            fileWatchers.Remove(fileWatchers.First(x => (x.Path == pathGridMembers[n].Source
+                            && x.Target == pathGridMembers[n].Target &&
+                            x.WatcherConnection1 == pathGridMembers[n].SyncType)));
+                        }
+                    }
+                    catch (Exception e)
+                    {
+
+                    }
+                }
+
+
+
+            }
+            //If an item was removed from the list, it should be removed from the fileWatchers list as well
+            //Monitoring no longer needed!
+            List<int> indexes = new List<int>();
+            for (int i = 0; i < fileWatchers.Count; i++)
+            {
+                bool contain = false;
+                for (int n = 0; n < pathGridMembers.Count; n++)
+                {
+                    if (pathGridMembers[n].SyncType == fileWatchers[i].WatcherConnection1 &&
+                        pathGridMembers[n].Source == fileWatchers[i].Path &&
+                        pathGridMembers[n].Target == fileWatchers[i].Target)
+                    {
+                        contain = true;
+                        break;
+                    }
+                }
+                if (contain == false)
+                {
+                    //If there are no matches, it stores the index to delete later
+                    indexes.Add(i);
+                }
+            }
+            indexes.Sort();
+            for (int n = 0; n < indexes.Count; n++)
+            {
+                //remove at index as they no longer exist in DGV
+                fileWatchers.RemoveAt(indexes[n]);
+                indexes = indexes.ConvertAll(x => x = x - 1);
+
+            }
+
+            for (int n = 0; n < pathGridMembers.Count; n++)
+            {
+                if (pathGridMembers[n].AutoSync == true)
+                {
+                    if (fileWatchers.Any(x => (x.Path == pathGridMembers[n].Source && x.Target ==
+                    pathGridMembers[n].Target && x.WatcherConnection1 == pathGridMembers[n].SyncType)))
+                    {
+
+                    }
+                    else
+                    {
+                        //If folder pair is not among the monitored folders,
+                        //add them by creating a new object of the FileWatcher
+                        fileWatchers.Add(new FileWatcher(pathGridMembers[n].Source,
+                            pathGridMembers[n].Target, pathGridMembers[n].SyncType));
+                        fileWatchers[fileWatchers.Count - 1].TurnOnWatcher();
+                    }
+                }
+            }
+        }
+        //SplitContainer dimensions
+        public void SplitInit()
+        {
+            try
+            {
+                splitContainer1.Panel2MinSize = Width / 10 * 7;
+                splitContainer1.SplitterDistance = splitContainer1.Panel2MinSize;
+                splitContainer2.Panel2MinSize = (Height / 10 * 6) - 10;
+                splitContainer2.SplitterDistance = splitContainer2.Panel2MinSize;
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+
+
+
+        //EventHandlers
         private void AddButton_Click(object sender, EventArgs e)
         {
 
             if (Directory.Exists(textSource.Text) == false || Directory.Exists(textTarget.Text) == false) return;
-            if (string.IsNullOrEmpty(textTarget.Text) && string.IsNullOrEmpty(textSource.Text)) ;
+            if (string.IsNullOrEmpty(textTarget.Text) || string.IsNullOrEmpty(textSource.Text)) return;
             if (textSource.Text == textTarget.Text)
             {
                 textError.BackColor = DefaultBackColor;
@@ -163,10 +373,12 @@ namespace SyncAppGUI
                         if (textTarget.Text.Length == 3) ;
                         else t = textTarget.Text.Substring(0, textTarget.Text.Length - 2);
                     }
-                    else if (textTarget.Text.EndsWith("\\") == false && textSource.Text.EndsWith("\\") == false)
+                    if (textTarget.Text.EndsWith("\\") == false && textSource.Text.EndsWith("\\") == false)
                     {
+
                         s = textSource.Text;
                         t = textTarget.Text;
+
 
                         if (IsSubdirectory(s, t) || IsSubdirectory(t, s))
                         {
@@ -178,12 +390,7 @@ namespace SyncAppGUI
                         }
 
                     }
-
-                    if (textTarget.Text.Length == 3 && textSource.Text.Length == 3)
-                    {
-                        s = textSource.Text;
-                        t = textTarget.Text;
-                    }
+                    
 
                     pathGridMembers.Add(new pathGridMember(s, t));
                     pathGrid.Refresh();
@@ -256,13 +463,6 @@ namespace SyncAppGUI
                 e.Effect = DragDropEffects.Copy;
             else
                 e.Effect = DragDropEffects.None;
-        }
-        private bool Evaluation(string source)
-        {
-            Regex r = new Regex(@"^(([a-zA-Z]\:)|(\\))(\\{1}|((\\{1})[^\\]([^/:*?<>""|]*))+)$");
-            if (string.IsNullOrWhiteSpace(source)) return false;
-            if (r.IsMatch(source)) return true;
-            else return false;
         }
         private void textSource_Validating(object sender, CancelEventArgs e)
         {
@@ -352,8 +552,8 @@ namespace SyncAppGUI
                             ch1.Value = true;
                             break;
                     }
-                    passWatcher();
                 }
+                passWatcher();
                 pathGrid.EndEdit();
             }
         }
@@ -383,14 +583,13 @@ namespace SyncAppGUI
 
 
                 }
-                passWatcher();
             }
             pathGridMember temp = new pathGridMember("", "");
             pathGridMembers.Add(temp);
             pathGridMembers.Remove(temp);
 
+            passWatcher();
         }
-
         private void ClearButton_Click(object sender, EventArgs e)
         {
             if (pathGridMembers.Count != 0)
@@ -403,7 +602,6 @@ namespace SyncAppGUI
                 }
             }
         }
-
         private void syncNowButton_Click(object sender, EventArgs e)
         {
             backgroundWorker1.WorkerReportsProgress = false;
@@ -412,30 +610,31 @@ namespace SyncAppGUI
             backgroundWorker1.RunWorkerAsync(pathGrid);
 
         }
-
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             Close();
         }
-
         private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
         {
             settingForm form = new settingForm();
             form.ShowDialog();
         }
-
         private void ButtonSave_Click(object sender, EventArgs e)
         {
             if (!Directory.Exists(settings.defaultSave))
             {
                 Directory.CreateDirectory(settings.defaultSave);
             }
+
             saveFileDialog1.InitialDirectory = settings.defaultSave;
+            //Get response from dialog
             DialogResult res = saveFileDialog1.ShowDialog();
 
             if (res == DialogResult.OK)
             {
+                //Get the path where the data should be saved
                 String fileName = saveFileDialog1.FileName;
+                //call save method
                 Save(fileName);
             }
         }
@@ -451,94 +650,39 @@ namespace SyncAppGUI
             if (res == DialogResult.OK)
             {
                 string fileName = openFileDialog1.FileName;
-                Load(fileName);
+                LoadDGV(fileName);
             }
 
         }
-        public void Save(string path)
-        {
-            using (StreamWriter sr = new StreamWriter(path.Substring(0, path.Length - 4) + "_grid" + path.Substring(path.Length - 4)))
-            {
-                for (int n = 0; n < pathGrid.Rows.Count; n++)
-                {
-                    string row = pathGridMembers[n].SFolder + ";" + pathGridMembers[n].Source +
-                        ";" + pathGridMembers[n].Target + ";" + pathGridMembers[n].TFolder + ";" +
-                        pathGridMembers[n].AutoSync + ";" + pathGridMembers[n].SyncType + ";";
-                    sr.WriteLine(row);
-                }
-            }
-        }
-        void Load(string path)
-        {
-            using (StreamReader sr = new StreamReader(path))
-            {
-                pathGridMembers.Clear();
-                string line = "";
-                while ((line = sr.ReadLine()) != null)
-                {
-                    string[] arr = line.Split(';');
-                    pathGridMembers.Add(new pathGridMember(arr[1], arr[2]));
-                    if (arr[3] == pathGridMember.syncTypes.Constructive.ToString())
-                    {
-                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Constructive.ToString();
-                    }
-                    else if (arr[3] == pathGridMember.syncTypes.Destructive.ToString())
-                    {
-                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Destructive.ToString();
-                    }
-                    else if (arr[3] == null) ;
-                    else
-                    {
-                        pathGridMembers.Last().SyncType = pathGridMember.syncTypes.Mirror.ToString();
-                    }
-                    pathGridMembers.Last().AutoSync = Convert.ToBoolean(arr[4]);
-
-                }
-
-            }
-
-        }
-
-        public static bool IsSubdirectory(string parentDir, string subDir)
-        {
-
-            string p1 = parentDir;
-            string p2 = subDir;
-            DirectoryInfo di1 = new DirectoryInfo(p1);
-            DirectoryInfo di2 = new DirectoryInfo(p2);
-            bool isParent = false;
-            while (di2.Parent != null)
-            {
-                if (di2.Parent.FullName == di1.FullName)
-                {
-                    isParent = true;
-                    break;
-                }
-                else di2 = di2.Parent;
-            }
-            return isParent;
-        }
-
         private void ManageToolStripMenuItem_Click(object sender, EventArgs e)
         {
             templateForm temp = new templateForm();
             temp.Show();
         }
-
         private void Form1_Activated(object sender, EventArgs e)
         {
             pathGrid.DataSource = pathGridMembers;
             pathGrid.EndEdit();
 
         }
-
         private void Form1_Resize(object sender, EventArgs e)
         {
             SplitInit();
-            RefresResizableColumns(pathGrid);
+            if (startUp == false)
+            {
+                RefresResizableColumns(pathGrid);
+                
+            }
+            if (this.WindowState == FormWindowState.Minimized)
+            {
+                notifyIcon1.Visible = true;
+                notifyIcon1.ShowBalloonTip(3000);
+                this.ShowInTaskbar = false;
+            }
         }
         private void bindingList_Changed(object sender, ListChangedEventArgs e)
         {
+            
             if (pathGridMembers.Any(x => (x.SyncType == null || x.SyncType == "")))
             {
                 textError.BackColor = DefaultBackColor;
@@ -551,76 +695,16 @@ namespace SyncAppGUI
                 syncNowButton.Enabled = true;
                 textError.Text = null;
             }
+
+            passWatcher();
         }
-
-
-
-
         private void PathGrid_Resize(object sender, EventArgs e)
         {
-            RefresResizableColumns(pathGrid);
-        }
-
-        private void BackgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
-        {
-            backgroundWorker1 = sender as BackgroundWorker;
-
-            syncNow.Sync(pathGridMembers, backgroundWorker1, e);
-        }
-
-        private void BackgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
-        {
-
-            syncNowButton.Enabled = true;
-            textError.Visible = true;
-            backgroundWorker1.Dispose();
-        }
-
-        private void SyncNowButton_Click(object sender, EventArgs e)
-        {
-            backgroundWorker1.RunWorkerAsync();
-        }
-    
-
-
-
-/*private void PathGrid_CellMouseDown(object sender, DataGridViewCellMouseEventArgs e)
-{
-    bool del = false;
-    if (e.RowIndex >= 0)
-    {
-        if (e.ColumnIndex == pathGrid.Rows[e.RowIndex].Cells["Delete"].ColumnIndex)
-        {
-            if (del == false)
+            if (startUp == false)
             {
-                pathGrid.Enabled = false;
-                int index = pathGridMembers.IndexOf(pathGridMembers.First(x => ((x.Source == (string)pathGrid.Rows[e.RowIndex].Cells["Source path"].Value) && (x.Target == (string)pathGrid.Rows[e.RowIndex].Cells["Target path"].Value))));
-                pathGridMembers.Remove(pathGridMembers[index]);
-                del = true;
-            }
-
-
-        }
-    }
-    pathGrid.Enabled = true;
-    pathGrid.EndEdit();
-}*/
-        private void setupTimer()
-        {
-            if (settings.interval != 0)
-            {
-                timer2.Interval = settings.interval;
-                timer1 = timer2;
-                timer1.Interval = settings.interval;
-                timer1.Start();
-            }
-            else
-            {
-                timer2.Interval = 1;
-                timer2.Stop();
+                RefresResizableColumns(pathGrid);
             }
         }
-
         private void Timer1_Tick(object sender, EventArgs e)
         {
             timer1.Interval = settings.interval;
@@ -636,103 +720,31 @@ namespace SyncAppGUI
                         toSync.Add(pathGridMembers[n]);
                     }
                 }
-                Task t1 = new Task(() => syncNow.MirrorList(toSync));
-                Task.WaitAll(t1);
+                Task.Run(() => syncNow.MirrorList(toSync));
                 showBalloon("Sync is Done!", "Next Synchronization is in: " + settings.intervalDate.TimeOfDay);
                 timer1.Start();
             }
 
         }
-        private void showBalloon(string title, string body)
+        //The backgroundworker handles the synchronization process initiated by the syncNow button
+        private void BackgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
-            using (NotifyIcon notifyIcon = new NotifyIcon())
-            {
-                notifyIcon.Visible = true;
+            backgroundWorker1 = sender as BackgroundWorker;
 
-                if (title != null)
-                {
-                    notifyIcon.BalloonTipTitle = title;
-                }
-
-                if (body != null)
-                {
-                    notifyIcon.BalloonTipText = body;
-                }
-                notifyIcon.Icon = SystemIcons.Application;
-                notifyIcon.ShowBalloonTip(5000);
-            }
+            syncNow.Sync(pathGridMembers, backgroundWorker1, e);
         }
-
-        private void Form1_KeyDown(object sender, KeyEventArgs e)
+        private void BackgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
         {
-            if (e.KeyData == Keys.R)
-            {
-                syncNowButton.PerformClick();
-            }
+
+            syncNowButton.Enabled = true;
+            textError.Visible = true;
+            backgroundWorker1.Dispose();
         }
-        public void passWatcher()
+        private void NotifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-
-            for (int n = 0; n < pathGridMembers.Count; n++)
-            {
-                if (pathGridMembers[n].AutoSync == false)
-                {
-                    try
-                    {
-                        if (fileWatchers.Count > 0)
-                        {
-                            fileWatchers.Remove(fileWatchers.First(x => (x.Path == pathGridMembers[n].Source && x.Target == pathGridMembers[n].Target && x.WatcherConnection1 == pathGridMembers[n].SyncType)));
-                        }
-                    }catch(Exception e)
-                    {
-
-                    }
-                }
-                
-
-
-            }
-            List<int> indexes = new List<int>();
-            for (int i = 0; i < fileWatchers.Count; i++)
-            {
-                bool contain = false;
-                for (int n = 0; n < pathGridMembers.Count; n++)
-                {
-                    if (pathGridMembers[n].SyncType == fileWatchers[i].WatcherConnection1 && pathGridMembers[n].Source == fileWatchers[i].Path && pathGridMembers[n].Target == fileWatchers[i].Target)
-                    {
-                        contain = true;
-                        break;
-                    }
-                }
-                if (contain == false)
-                {
-                    indexes.Add(i);
-                }
-            }
-            indexes.Sort();
-            for(int n = 0; n < indexes.Count; n++)
-            {
-                fileWatchers.RemoveAt(indexes[n]);
-                indexes = indexes.ConvertAll(x => x=x-1);
-
-            }
-
-            for (int n = 0; n < pathGridMembers.Count; n++)
-            {
-                if (pathGridMembers[n].AutoSync == true)
-                {
-                    if (fileWatchers.Any(x => (x.Path == pathGridMembers[n].Source && x.Target == pathGridMembers[n].Target && x.WatcherConnection1 == pathGridMembers[n].SyncType)))
-                    {
-
-                    }
-                    else
-                    {
-                        fileWatchers.Add(new FileWatcher());
-                        fileWatchers[fileWatchers.Count - 1].CreateWatcher(pathGridMembers[n].Source, pathGridMembers[n].Target, pathGridMembers[n].SyncType);
-                        fileWatchers[fileWatchers.Count - 1].TurnOnWatcher();
-                    }
-                }
-            }
+            this.WindowState = FormWindowState.Normal;
+            this.ShowInTaskbar = true;
+            notifyIcon1.Visible = false ;
         }
     }
     

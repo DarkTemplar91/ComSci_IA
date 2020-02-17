@@ -20,13 +20,12 @@ namespace SyncAppGUI
         [STAThread]
         static void Main()
         {
-
+            Task.Run(()=> FileWatcher.DeletePaths());
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            Task.Run(() => FileWatcher.DeletePaths());
-        
             
+
         }
     }
 }

@@ -25,7 +25,8 @@ namespace SyncAppGUI
                     {
                         MirrorBoth(source, target);
                     }
-                    else if (type == pathGridMember.syncTypes.Constructive.ToString() || type == pathGridMember.syncTypes.Destructive.ToString())
+                    else if (type == pathGridMember.syncTypes.Constructive.ToString() ||
+                        type == pathGridMember.syncTypes.Destructive.ToString())
                     {
 
                         MirrorDir(source, target);
@@ -101,7 +102,9 @@ namespace SyncAppGUI
         }
         public static void Sync(BindingList<pathGridMember> list,BackgroundWorker worker, DoWorkEventArgs e)
         {
+            //Backgroundworker calls this method
             BindingList<pathGridMember> temp = list;
+            //iterate through the list
             for (int n = 0; n < temp.Count; n++)
             {
                 if (temp[n].SyncType != null || temp[n].SyncType != "")
@@ -109,11 +112,13 @@ namespace SyncAppGUI
                     string type = temp[n].SyncType;
                     string source = temp[n].Source;
                     string target = temp[n].Target;
+                    //Calls method depending on synchronization type
                     if (type == pathGridMember.syncTypes.Mirror.ToString())
                     {
                         MirrorBoth(source, target);
                     }
-                    else if (type == pathGridMember.syncTypes.Constructive.ToString() || type == pathGridMember.syncTypes.Destructive.ToString())
+                    else if (type == pathGridMember.syncTypes.Constructive.ToString() 
+                        || type == pathGridMember.syncTypes.Destructive.ToString())
                     {
                         
                         MirrorDir(source, target);
@@ -124,23 +129,32 @@ namespace SyncAppGUI
 
         public static bool FileEquals(string p1, string p2)
         {
-            byte[] file1 = File.ReadAllBytes(p1);
-            byte[] file2 = File.ReadAllBytes(p2);
 
-            if (file1.Length == file2.Length)
+            try
             {
-                for (int n = 1; n < file1.Length; n++)
-                {
-                    if (file1[n] != file2[n])
-                    {
-                        return false;
-                    }
+                byte[] file1 = File.ReadAllBytes(p1);
+                byte[] file2 = File.ReadAllBytes(p2);
 
+                if (file1.Length == file2.Length)
+                {
+                    for (int n = 1; n < file1.Length; n++)
+                    {
+                        if (file1[n] != file2[n])
+                        {
+                            return false;
+                        }
+
+                    }
+                    return true;
                 }
-                return true;
+                else return false;
             }
-            else return false;
+            catch (Exception e)
+            {
+                return false;
+            }
         }
+        
         public static bool DirEqual(string p1, string p2)
         {
             foreach (string path in Directory.GetDirectories(p1, "*", SearchOption.AllDirectories))
