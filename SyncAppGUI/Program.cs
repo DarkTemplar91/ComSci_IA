@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO.MemoryMappedFiles;
-using System.ComponentModel;
-using System.Threading;
 using System.IO;
-using System.Text;
 
 namespace SyncAppGUI
 {
@@ -20,11 +14,16 @@ namespace SyncAppGUI
         [STAThread]
         static void Main()
         {
-            Task.Run(()=> FileWatcher.DeletePaths());
+            
+            if(!Directory.Exists(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\SyncApp\\"))
+            {
+                Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\SyncApp\\");
+            }
+            Task.Run(() => FileWatcher.DeletePaths());
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());
-            
+
 
         }
     }

@@ -4,10 +4,8 @@ using System.ComponentModel;
 using System.Data;
 using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace SyncAppGUI
 {
@@ -40,8 +38,8 @@ namespace SyncAppGUI
                 }
                 radiob_interval.Checked = true;
             }
-            else dateTimePicker1.Value = new DateTime(year:DateTime.Now.Year,month:DateTime.Now.Month,day:DateTime.Now.Day,hour:00, minute: 00, second:00);
-            
+            else dateTimePicker1.Value = new DateTime(year: DateTime.Now.Year, month: DateTime.Now.Month, day: DateTime.Now.Day, hour: 00, minute: 00, second: 00);
+
 
 
 
@@ -55,9 +53,9 @@ namespace SyncAppGUI
                 if (settings.dateTimes != null)
                 {
                     syncDateTime = settings.dateTimes.ConvertAll(x => Convert.ToString(x));
-                    syncDateTime=syncDateTime.Select(x => x.Substring(x.Length - 8,5).Trim()).ToList();
+                    syncDateTime = syncDateTime.Select(x => x.Substring(x.Length - 8, 5).Trim()).ToList();
                 }
-                foreach(string s in syncDateTime)
+                foreach (string s in syncDateTime)
                 {
                     int index = timeGrid.Rows.Add();
                     timeGrid.Rows[index].Cells[0].Value = s;
@@ -66,7 +64,7 @@ namespace SyncAppGUI
                 radiob_Set.Checked = true;
 
             }
-            
+
         }
         static List<string> syncDateTime = new List<string>();
         static string defaultPath;
@@ -79,7 +77,7 @@ namespace SyncAppGUI
             maskedTextBox1.Show();
 
             label3.Text = "Synchronize at the following time(s):";
-            
+
         }
 
         private void radiob_Interval_CheckedChanged(object sender, EventArgs e)
@@ -99,7 +97,7 @@ namespace SyncAppGUI
             Regex timeFormat = new Regex(@"^(?:[01][0-9]|2[0-3]):[0-5][0-9]$");
             if (timeFormat.IsMatch(text)) return true;
             else return false;
-            
+
         }
         private void MaskedTextBox1_Validating(object sender, CancelEventArgs e)
         {
@@ -107,7 +105,7 @@ namespace SyncAppGUI
             {
                 maskedTextBox1.BackColor = Color.White;
                 maskedTextBox1.ForeColor = Color.Black;
-                
+
             }
             else if (!Evaluate(maskedTextBox1.Text))
             {
@@ -123,10 +121,10 @@ namespace SyncAppGUI
 
         private void MaskedTextBox1_Click(object sender, EventArgs e)
         {
-            
+
             if (maskedTextBox1.MaskedTextProvider.LastAssignedPosition > -1)
             {
-                maskedTextBox1.SelectionStart = maskedTextBox1.MaskedTextProvider.LastAssignedPosition+1;
+                maskedTextBox1.SelectionStart = maskedTextBox1.MaskedTextProvider.LastAssignedPosition + 1;
                 maskedTextBox1.SelectionLength = 0;
             }
             else
@@ -140,7 +138,7 @@ namespace SyncAppGUI
         {
             if (e.KeyCode == Keys.Right)
             {
-                if (maskedTextBox1.MaskedTextProvider.LastAssignedPosition - maskedTextBox1.SelectionStart < 1 && maskedTextBox1.MaskedTextProvider.LastAssignedPosition>=0)
+                if (maskedTextBox1.MaskedTextProvider.LastAssignedPosition - maskedTextBox1.SelectionStart < 1 && maskedTextBox1.MaskedTextProvider.LastAssignedPosition >= 0)
                 {
                     maskedTextBox1.Select(maskedTextBox1.MaskedTextProvider.LastAssignedPosition, 0);
                 }
@@ -149,23 +147,23 @@ namespace SyncAppGUI
 
         private void ButtonAdd_Click(object sender, EventArgs e)
         {
-            if (Evaluate(maskedTextBox1.Text)&&syncDateTime.Contains(maskedTextBox1.Text)==false)
+            if (Evaluate(maskedTextBox1.Text) && syncDateTime.Contains(maskedTextBox1.Text) == false)
             {
                 int index = timeGrid.Rows.Add();
                 timeGrid.Rows[index].Cells[0].Value = maskedTextBox1.Text;
-                
+
                 syncDateTime.Add(maskedTextBox1.Text);
                 timeGrid.EndEdit();
             }
-            
-            
+
+
         }
 
         private void TimeGrid_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             if (e.RowIndex >= 0)
             {
-                
+
                 if (e.ColumnIndex == timeGrid.Rows[e.RowIndex].Cells["Delete"].ColumnIndex)
                 {
                     syncDateTime.Remove(timeGrid.Rows[e.RowIndex].Cells[0].Value.ToString());
@@ -187,21 +185,21 @@ namespace SyncAppGUI
                 settings.syncType = settings.SyncTypes.TimeInterval.ToString();
                 settings.interval = dateTimePicker1.Value.Hour * 60 * 60 * 1000 + dateTimePicker1.Value.Minute * 60 * 1000;
                 settings.intervalDate = dateTimePicker1.Value;
-                
+
             }
             else
             {
 
                 settings.syncType = settings.SyncTypes.SetTimes.ToString();
                 settings.dateTimes = syncDateTime.ConvertAll(x => DateTime.ParseExact(x, "HH:mm", null));
-                
+
             }
             settings.defaultSave = textBox1.Text;
         }
 
         private void ButtonBrowse_Click(object sender, EventArgs e)
         {
-            DialogResult res=folderBrowserDialog1.ShowDialog();
+            DialogResult res = folderBrowserDialog1.ShowDialog();
             if (res == DialogResult.OK)
             {
                 string defaultPath = folderBrowserDialog1.SelectedPath;

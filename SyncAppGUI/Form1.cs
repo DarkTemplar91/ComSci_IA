@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
-using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Text.RegularExpressions;
-using System.IO;
-using System.Threading;
 
 namespace SyncAppGUI
 {
@@ -27,7 +24,7 @@ namespace SyncAppGUI
             this.Name = "AutoSyncApp";
 
             SplitInit();
-            
+
             pathGrid.AutoGenerateColumns = false;
             Grid();
             pathGrid.CurrentCellDirtyStateChanged += new EventHandler(pathGrid_DirtyCell);
@@ -67,7 +64,7 @@ namespace SyncAppGUI
         //List os FileWatcher objects that monitor the directories
         static List<FileWatcher> fileWatchers = new List<FileWatcher>();
         //Timer for interval synchroniztion
-        static System.Windows.Forms.Timer timer1=new System.Windows.Forms.Timer();
+        static System.Windows.Forms.Timer timer1 = new System.Windows.Forms.Timer();
         public void Grid()
         {
 
@@ -390,7 +387,7 @@ namespace SyncAppGUI
                         }
 
                     }
-                    
+
 
                     pathGridMembers.Add(new pathGridMember(s, t));
                     pathGrid.Refresh();
@@ -671,7 +668,7 @@ namespace SyncAppGUI
             if (startUp == false)
             {
                 RefresResizableColumns(pathGrid);
-                
+
             }
             if (this.WindowState == FormWindowState.Minimized)
             {
@@ -682,7 +679,7 @@ namespace SyncAppGUI
         }
         private void bindingList_Changed(object sender, ListChangedEventArgs e)
         {
-            
+
             if (pathGridMembers.Any(x => (x.SyncType == null || x.SyncType == "")))
             {
                 textError.BackColor = DefaultBackColor;
@@ -744,8 +741,8 @@ namespace SyncAppGUI
         {
             this.WindowState = FormWindowState.Normal;
             this.ShowInTaskbar = true;
-            notifyIcon1.Visible = false ;
+            notifyIcon1.Visible = false;
         }
     }
-    
+
 }

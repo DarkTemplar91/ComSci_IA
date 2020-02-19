@@ -189,7 +189,7 @@ namespace SyncAppGUI
                 }
             };
             timer.Start();
-        }        
+        }
         private void OnDeleted(object source, FileSystemEventArgs e)
         {
             lock (_changedFiles)

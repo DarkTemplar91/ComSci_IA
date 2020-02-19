@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Runtime.Serialization;
-using System.ServiceModel;
-using System.IO;
+﻿using System.IO;
 
 namespace SyncAppGUI
 {
-    
+
     public class pathGridMember
     {
-        
+
         string sourcePath;
         string targetPath;
         string sourceFolder;

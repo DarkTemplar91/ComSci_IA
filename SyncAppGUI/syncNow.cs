@@ -1,11 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.ComponentModel;
 using System.IO;
 using System.Threading;
-using System.ComponentModel;
 
 namespace SyncAppGUI
 {
@@ -95,12 +91,12 @@ namespace SyncAppGUI
         }
         public static void MirrorBoth(string d1path, string d2path)
         {
-            
+
             MirrorDir(d1path, d2path);
             MirrorDir(d2path, d1path);
 
         }
-        public static void Sync(BindingList<pathGridMember> list,BackgroundWorker worker, DoWorkEventArgs e)
+        public static void Sync(BindingList<pathGridMember> list, BackgroundWorker worker, DoWorkEventArgs e)
         {
             //Backgroundworker calls this method
             BindingList<pathGridMember> temp = list;
@@ -117,10 +113,10 @@ namespace SyncAppGUI
                     {
                         MirrorBoth(source, target);
                     }
-                    else if (type == pathGridMember.syncTypes.Constructive.ToString() 
+                    else if (type == pathGridMember.syncTypes.Constructive.ToString()
                         || type == pathGridMember.syncTypes.Destructive.ToString())
                     {
-                        
+
                         MirrorDir(source, target);
                     }
                 }
@@ -154,7 +150,7 @@ namespace SyncAppGUI
                 return false;
             }
         }
-        
+
         public static bool DirEqual(string p1, string p2)
         {
             foreach (string path in Directory.GetDirectories(p1, "*", SearchOption.AllDirectories))
